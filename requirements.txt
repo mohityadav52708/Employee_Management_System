@@ -1,0 +1,12 @@
+flask
+Gunicorn
+pymongo
+python-dotenv
+Flask-Mail
+Flask-PyMongo
+matplotlib
+numpy
+pymongo
+bcrypt
+plotly
+
