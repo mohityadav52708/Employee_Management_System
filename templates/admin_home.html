@@ -1,11 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../static/admin_home.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Admin Page</h1>
-    <h1>Welcome, Admin {{ username}}</h1>
-    <a href="/logout">Logout</a>
+
+    <!-- Burger Icon for Mobile -->
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Employee Management</a>
+        <a href="#">Task Tracking</a>
+        <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
+        <a href="#">Performance Reviews</a>
+        <a href="#">Reports</a>
+        <a href="#">Settings</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, Admin {{username}}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="container">
+            <div class="card">
+                <h3>Employee Overview</h3>
+                <p>View and manage all employees' details.</p>
+                <a href="#" class="btn">View Employees</a>
+            </div>
+
+            <div class="card">
+                <h3>Task Assignments</h3>
+                <p>Assign and monitor tasks for employees.</p>
+                <a href="#" class="btn">Manage Tasks</a>
+            </div>
+
+            <div class="card">
+                <h3>Leave Approvals</h3>
+                <p>Review and approve pending leave requests.</p>
+                <a href="#" class="btn">Manage Leaves</a>
+            </div>
+
+            <div class="card">
+                <h3>Performance Tracking</h3>
+                <p>Analyze performance reviews and provide feedback.</p>
+                <a href="#" class="btn">Track Performance</a>
+            </div>
+
+            <div class="card">
+                <h3>Generate Reports</h3>
+                <p>Create detailed reports for employee statistics.</p>
+                <a href="#" class="btn">Generate Reports</a>
+            </div>
+
+            <div class="card">
+                <h3>System Settings</h3>
+                <p>Configure system settings and preferences.</p>
+                <a href="#" class="btn">Go to Settings</a>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <p>&copy; 2025 Admin Management System. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for toggling sidebar visibility
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

@@ -1,11 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/home.css" />
 </head>
 <body>
-    <h1>Employee Page</h1>
-    <h1>Welcome, {{ username}}</h1>
-    <a href="/logout">Logout</a>
+
+    <!-- Burger Icon for Mobile -->
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Employee Dashboard</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Task Management</a>
+        <a href="{{ url_for('request_leave') }}">Leave Management</a>
+        <a href="#">Learning & Development</a>
+        <a href="#">Attendance</a>
+        <a href="#">Reviews</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, {{ username }}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="container">
+            <!-- Task Automation -->
+            <div class="card">
+                <h3>Task Automation</h3>
+                <p>Automated task allocation based on project needs and employee skills.</p>
+                <a href="#" class="btn">Manage Tasks</a>
+            </div>
+
+            <!-- Personalized Learning -->
+            <div class="card">
+                <h3>Learning & Development</h3>
+                <p>Personalized training suggestions for skill enhancement.</p>
+                <a href="#" class="btn">Start Learning</a>
+            </div>
+
+            <!-- Reviews Box -->
+            <div class="card">
+                <h3>Employee Reviews</h3>
+                <p>Provide feedback and view performance reviews from managers and peers.</p>
+                <a href="#" class="btn">View Reviews</a>
+            </div>
+        </div>
+
+        <!-- More Cards Section -->
+        <div class="container">
+            <!-- Sentiment Analysis -->
+            <div class="card">
+                <h3>Employee Sentiment</h3>
+                <p>Analyze feedback and reviews to gauge employee satisfaction.</p>
+                <a href="#" class="btn">Analyze Sentiment</a>
+            </div>
+
+            <!-- Workload Management -->
+            <div class="card">
+                <h3>Workload Management</h3>
+                <p>Monitor and balance workloads across your team effectively.</p>
+                <a href="#" class="btn">Manage Workloads</a>
+            </div>
+
+            <!-- Face Recognition Attendance -->
+            <div class="card">
+                <h3>Attendance Tracking</h3>
+                <p>Mark attendance using face recognition technology.</p>
+                <a href="#" class="btn">Mark Attendance</a>
+            </div>
+        </div>
+
+        <!-- Dynamic Leave Management -->
+        <div class="container">
+            <div class="card">
+                <h3>Leave Management</h3>
+                <p>Request, approve, and track leave applications dynamically.</p>
+                <a href="#" class="btn">Manage Leaves</a>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <p>&copy; 2025 Employee Management System. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for toggling sidebar visibility
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

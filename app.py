@@ -9,7 +9,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import ssl
-
+from bson.objectid import ObjectId
+from flask_cors import CORS
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -22,6 +23,7 @@ users_collection = db["users"]
 # Email Configuration
 app.config['MAIL_USERNAME'] = 'librarymanagementprjoect@gmail.com'
 app.config['MAIL_PASSWORD'] = 'ykqy zkvd zzak ujpa'
+CORS(app)  # Enable CORS for front-end communication
 
 # Helper Functions
 def send_email(email, subject, body):
@@ -44,6 +46,7 @@ def send_email(email, subject, body):
 
 def generate_otp():
     return ''.join(random.choices(string.digits, k=6))
+
 
 # Routes
 @app.route('/')
@@ -170,7 +173,10 @@ def login():
 @app.route('/admin_home')
 def admin_home():
     if 'user' in session and session.get('role') == 'admin':
-        return render_template('admin_home.html')
+        user = users_collection.find_one({"email": session['user']})
+        if user:
+            username = user['username']
+            return render_template('admin_home.html',username=username)
     else:
         flash('Access denied. Only admin can access this page.', 'danger')
         return redirect(url_for('login'))
@@ -190,6 +196,65 @@ def home():
         return redirect(url_for('login'))
 
 
+@app.route('/request-leave', methods=['GET', 'POST'])
+def request_leave():
+    if 'user' in session and session.get('role') == 'employee':
+        if request.method == 'POST':
+            leave_type = request.form['leave_type']
+            start_date = request.form['start_date']
+            end_date = request.form['end_date']
+            reason = request.form['reason']
+
+            leave_request = {
+                "employee_email": session['user'],
+                "leave_type": leave_type,
+                "start_date": start_date,
+                "end_date": end_date,
+                "reason": reason,
+                "status": "Pending"
+            }
+
+            # Insert the leave request into the database
+            db.leave_requests.insert_one(leave_request)
+
+            # Send email to admin about the leave request
+            admin = users_collection.find_one({"role": "admin"})
+            if admin:
+                send_email(admin['email'], "New Leave Request", f"A new leave request has been made by {session['user']}. Please review it.")
+            
+            flash('Leave request submitted successfully!', 'success')
+            return redirect(url_for('home'))
+        
+        return render_template('request_leave.html')
+    else:
+        flash('You must be logged in as an employee to request leave.', 'danger')
+        return redirect(url_for('login'))
+
+@app.route('/admin-leave-requests', methods=['GET', 'POST'])
+def admin_leave_requests():
+    if 'user' in session and session.get('role') == 'admin':
+        leave_requests = db.leave_requests.find({"status": "Pending"})
+        
+        if request.method == 'POST':
+            leave_id = request.form['leave_id']
+            action = request.form['action']
+
+            # Find the leave request and update the status
+            leave_request = db.leave_requests.find_one({"_id": ObjectId(leave_id)})
+            if action == 'approve':
+                db.leave_requests.update_one({"_id": ObjectId(leave_id)}, {"$set": {"status": "Approved"}})
+                send_email(leave_request['employee_email'], "Leave Request Approved", f"Your leave request from {leave_request['start_date']} to {leave_request['end_date']} has been approved.")
+            elif action == 'reject':
+                db.leave_requests.update_one({"_id": ObjectId(leave_id)}, {"$set": {"status": "Rejected"}})
+                send_email(leave_request['employee_email'], "Leave Request Rejected", f"Your leave request from {leave_request['start_date']} to {leave_request['end_date']} has been rejected.")
+            
+            flash('Leave request processed successfully.', 'success')
+            return redirect(url_for('admin_leave_requests'))
+
+        return render_template('admin_leave_requests.html', leave_requests=leave_requests)
+    else:
+        flash('Access denied. Only admin can view leave requests.', 'danger')
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
