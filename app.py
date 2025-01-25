@@ -142,12 +142,22 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        portal = request.args.get('portal', 'employee')  # Default to 'employee' portal
+
         user = users_collection.find_one({"email": email})
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
             session['user'] = email
             session['role'] = user.get('role', 'employee')  # Set the user's role
-            
+
+            # Check if the user is accessing the correct portal
+            if portal == 'admin' and session['role'] != 'admin':
+                flash('Access denied. Only admin can access this page.', 'danger')
+                return render_template('login.html', alert_message="Access denied. Only admin can access this page.")
+            if portal == 'employee' and session['role'] != 'employee':
+                flash('Access denied. Only employee can access this page.', 'danger')
+                return render_template('login.html', alert_message="Access denied. Only employee can access this page.")
+
             # Redirect based on the role (admin or employee)
             if session['role'] == 'admin':
                 return redirect(url_for('admin_home'))

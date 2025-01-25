@@ -139,12 +139,15 @@
             document.getElementById('loginHeading').textContent = `Login/${portal}`;
             
             // Update the portal in the form submission action
-            // Add a query parameter to indicate the selected portal type
             const form = document.querySelector('form');
             const currentAction = form.getAttribute('action');
             const newAction = currentAction.split('?')[0] + `?portal=${portal.toLowerCase()}`;  // Append the portal query
             form.setAttribute('action', newAction);
         }
+
+        {% if alert_message %}
+            alert("{{ alert_message }}");
+        {% endif %}
     </script>
 </body>
 </html>
