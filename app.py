@@ -50,26 +50,6 @@ def generate_otp():
 def index():
     return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = users_collection.find_one({"email": email})
-
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-            session['user'] = email
-            session['role'] = user.get('role', 'employee')  # Set the user's role
-            
-            # Redirect based on the role (admin or employee)
-            if session['role'] == 'admin':
-                return redirect(url_for('admin_home'))
-            else:
-                return redirect(url_for('home'))
-        else:
-            flash('Invalid email or password.', 'danger')
-    return render_template('login.html')
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -157,14 +137,30 @@ def reset_password():
             flash('Invalid OTP.', 'danger')
     return render_template('reset_password.html', email=email)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = users_collection.find_one({"email": email})
+
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            session['user'] = email
+            session['role'] = user.get('role', 'employee')  # Set the user's role
+            
+            # Redirect based on the role (admin or employee)
+            if session['role'] == 'admin':
+                return redirect(url_for('admin_home'))
+            else:
+                return redirect(url_for('home'))
+        else:
+            flash('Invalid email or password.', 'danger')
+    return render_template('login.html')
 
 @app.route('/admin_home')
 def admin_home():
     if 'user' in session and session.get('role') == 'admin':
-        user=users_collection.find_one({"email": session['user']})
-        if user:
-            username = user['username']
-            return render_template('admin_home.html',username=username)
+        return render_template('admin_home.html')
     else:
         flash('Access denied. Only admin can access this page.', 'danger')
         return redirect(url_for('login'))
