@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Complaints</title>
+    <link rel="stylesheet" href="../static/admin_complaints.css" />
+    <link rel="stylesheet" href="../static/home.css" />
+
+</head>
+
+<body>
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="{{url_for('admin_home')}}">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Task Management</a>
+        <a href="{{url_for('admin_leave_requests')}}">Leave Management</a>
+        <a href="#">Learning & Development</a>
+        <a href="#">Attendance</a>
+        <a href="{{url_for('admin_complaints')}}">Reviews</a>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, Admin {{username}}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    
+    <h1>Admin Complaint Dashboard</h1>
+    {% if complaints %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee Email</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint['employee_email'] }}</td>
+                        <td>{{ complaint['title'] }}</td>
+                        <td>{{ complaint['description'] }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin_complaints') }}">
+                                <input type="hidden" name="complaint_id" value="{{ complaint['_id'] }}">
+                                <textarea name="response" rows="2" placeholder="Add a response (optional)"></textarea>
+                                <div class="resolve_reject">
+                                <button type="submit" name="action" value="resolve">Resolve</button>
+                                <button type="submit" name="action" value="reject">Reject</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-complaints">No complaints to manage at the moment.</p>
+    {% endif %}
+    </div>
+    <script>
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

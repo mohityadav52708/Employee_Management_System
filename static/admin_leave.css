@@ -1,0 +1,201 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ecf0f1;
+    margin: 0;
+    padding: 20px;
+    padding: 0;
+}
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    animation: fadeIn 1s ease-out;
+}
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+th {
+    background-color: #3498db;
+    color: #fff;
+}
+td {
+    background-color: #f4f7fc;
+}
+tr:hover td {
+    background-color: #e1e9f2;
+    transform: translateY(-2px);
+    transition: 0.3s ease;
+}
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+.flash-message {
+    text-align: center;
+    margin-bottom: 20px;
+    color: green;
+}
+form{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    text-align: center;
+}
+
+.container {
+    margin: 20px auto;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper {
+    margin-top: 20px;
+    overflow-x: auto; /* Add horizontal scrolling on smaller devices */
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 16px;
+}
+
+table th, table td {
+    padding: 10px 5px;
+    text-align: left;
+    border: 1px solid #e0e0e0;
+}
+
+table th {
+    background: #2c3e50;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+table tr:nth-child(even) {
+    background: #f7f7f7;
+}
+
+table tr:hover {
+    background: #f0f0f0;
+}
+
+button {
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #27ae60;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1e8449;
+}
+
+button[name="action"][value="reject"] {
+    background-color: #e74c3c;
+}
+
+button[name="action"][value="reject"]:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive Table Styles */
+@media (max-width: 768px) {
+    table {
+        border: 0;
+    }
+
+    table thead {
+        display: none; /* Hide table header for mobile */
+    }
+
+    table tr {
+        display: block; /* Display rows as blocks */
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    table td {
+        display: block; /* Display cells as blocks */
+        text-align: right; /* Align content to the right for labels */
+        font-size: 14px;
+        padding: 10px 5px;
+        position: relative;
+    }
+
+    table td::before {
+        content: attr(data-label); /* Use the data-label attribute as a label */
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 10px;
+        font-weight: bold;
+        color: #555;
+        text-align: left;
+    }
+
+    table td:last-child {
+        text-align: center; /* Center the action buttons */
+    }
+}
+
+@media (max-width: 480px) {
+    h1, h2 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+}

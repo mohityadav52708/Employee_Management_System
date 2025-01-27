@@ -1,0 +1,120 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 20px;
+}
+.containerone {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    animation: fadeIn 1s ease-out;
+}
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+label {
+    font-size: 16px;
+    color: #34495e;
+    display: block;
+    margin-bottom: 10px;
+}
+input[type="date"], select, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+input[type="date"]:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
+    border-color: #3498db;
+}
+button {
+    background-color: #3498db;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+}
+.flash-message {
+    text-align: center;
+    margin-bottom: 20px;
+    color: green;
+}
+.history-section {
+    margin-top: 40px;
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.history-table th, .history-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+.history-table th {
+    background-color: #3498db;
+    color: white;
+}
+.history-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.history-table tr:hover {
+    background-color: #ecf0f1;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .containerone {
+        padding: 20px;
+        margin: 20px;
+    }
+    h2 {
+        font-size: 24px;
+    }
+    label, input[type="date"], select, textarea, button {
+        font-size: 14px;
+    }
+    .history-table th, .history-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .containerone {
+        padding: 15px;
+        margin: 15px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+    label, input[type="date"], select, textarea, button {
+        font-size: 12px;
+    }
+    .history-table th, .history-table td {
+        font-size: 7px;
+        padding:5px;
+    }
+}

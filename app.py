@@ -195,10 +195,17 @@ def home():
         flash('Access denied. Please log in as an employee.', 'danger')
         return redirect(url_for('login'))
 
-
 @app.route('/request-leave', methods=['GET', 'POST'])
 def request_leave():
     if 'user' in session and session.get('role') == 'employee':
+        # Fetch leave history for the employee
+        employee_email = session['user']
+        leave_requests = db.leave_requests.find({"employee_email": employee_email})
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        # Convert MongoDB cursor to a list for easy rendering in template
+        leave_requests_list = list(leave_requests)
+
         if request.method == 'POST':
             leave_type = request.form['leave_type']
             start_date = request.form['start_date']
@@ -224,8 +231,10 @@ def request_leave():
             
             flash('Leave request submitted successfully!', 'success')
             return redirect(url_for('home'))
-        
-        return render_template('request_leave.html')
+            
+        # Render the page with the leave requests
+        return render_template('request_leave.html', leave_requests=leave_requests_list,username=username)
+
     else:
         flash('You must be logged in as an employee to request leave.', 'danger')
         return redirect(url_for('login'))
@@ -235,6 +244,7 @@ def admin_leave_requests():
     if 'user' in session and session.get('role') == 'admin':
         leave_requests = db.leave_requests.find({"status": "Pending"})
         
+   
         if request.method == 'POST':
             leave_id = request.form['leave_id']
             action = request.form['action']
@@ -250,8 +260,9 @@ def admin_leave_requests():
             
             flash('Leave request processed successfully.', 'success')
             return redirect(url_for('admin_leave_requests'))
-
-        return render_template('admin_leave_requests.html', leave_requests=leave_requests)
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        return render_template('admin_leave_requests.html', leave_requests=leave_requests,username=username)
     else:
         flash('Access denied. Only admin can view leave requests.', 'danger')
         return redirect(url_for('login'))
@@ -261,6 +272,68 @@ def logout():
     session.clear()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
+
+@app.route('/complaints', methods=['GET', 'POST'])
+def complaints():
+    if 'user' in session and session.get('role') == 'employee':
+        if request.method == 'POST':
+            complaint_title = request.form['title']
+            complaint_description = request.form['description']
+            timestamp = datetime.datetime.now()
+
+            # Insert the complaint into the database
+            complaint = {
+                "employee_email": session['user'],
+                "title": complaint_title,
+                "description": complaint_description,
+                "status": "Pending",
+                "response": None,
+                "timestamp": timestamp
+            }
+            db.complaints.insert_one(complaint)
+
+            flash('Complaint submitted successfully!', 'success')
+            return redirect(url_for('complaints'))
+        
+        # Retrieve all complaints submitted by the current employee
+        user_complaints = list(db.complaints.find({"employee_email": session['user']}))
+        return render_template('complaints.html', complaints=user_complaints)
+    else:
+        flash('You must be logged in as an employee to submit complaints.', 'danger')
+        return redirect(url_for('login'))
+
+
+@app.route('/admin-complaints', methods=['GET', 'POST'])
+def admin_complaints():
+    if 'user' in session and session.get('role') == 'admin':
+        if request.method == 'POST':
+            complaint_id = request.form['complaint_id']
+            action = request.form['action']
+            response = request.form.get('response', '')  # Optional response from admin
+
+            # Find the complaint and update the status and response
+            if action == 'resolve':
+                db.complaints.update_one(
+                    {"_id": ObjectId(complaint_id)},
+                    {"$set": {"status": "Resolved", "response": response}}
+                )
+                flash('Complaint resolved successfully.', 'success')
+            elif action == 'reject':
+                db.complaints.update_one(
+                    {"_id": ObjectId(complaint_id)},
+                    {"$set": {"status": "Rejected", "response": response}}
+                )
+                flash('Complaint rejected successfully.', 'info')
+            return redirect(url_for('admin_complaints'))
+        
+        # Retrieve all pending complaints
+        complaints = list(db.complaints.find({"status": "Pending"}))
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        return render_template('admin_complaints.html', complaints=complaints,username=username)
+    else:
+        flash('Access denied. Only admin can manage complaints.', 'danger')
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)

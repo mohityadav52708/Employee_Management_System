@@ -36,7 +36,6 @@
             display: flex;
             flex-direction: column;
         }
-
         label {
             font-size: 14px;
             margin: 10px 0 5px;
@@ -97,6 +96,33 @@
         .form-footer a:hover {
             text-decoration: underline;
         }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-container input[type="password"],
+        .password-container input[type="text"] {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #777;
+            padding-bottom:15px;
+        }
+
+        .toggle-password:hover {
+            color: #0072ff;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +136,10 @@
             <input type="email" id="email" name="email" placeholder="Enter your email" required>
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <div class="password-container">
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
 
             <!-- Role selection using radio buttons -->
             <div class="radio-group">
@@ -125,5 +154,18 @@
             Already have an account? <a href="{{ url_for('login') }}">Login here</a>.
         </div>
     </div>
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.querySelector('.toggle-password');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+    </script>
 </body>
 </html>

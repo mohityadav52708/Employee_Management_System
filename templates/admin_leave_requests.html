@@ -4,115 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Requests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/home.css" />
+    <link rel="stylesheet" href="../static/admin_leave.css" />
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #ecf0f1;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            animation: fadeIn 1s ease-out;
-        }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #3498db;
-            color: #fff;
-        }
-        td {
-            background-color: #f4f7fc;
-        }
-        tr:hover td {
-            background-color: #e1e9f2;
-            transform: translateY(-2px);
-            transition: 0.3s ease;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-            transform: scale(1.05);
-        }
-        .flash-message {
-            text-align: center;
-            margin-bottom: 20px;
-            color: green;
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+        body{
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Leave Requests</h2>
-        {% if flash_messages %}
-        <div class="flash-message">
-            {% for message in flash_messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Leave Type</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Reason</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in leave_requests %}
-                <tr>
-                    <td>{{ request.employee_email }}</td>
-                    <td>{{ request.leave_type }}</td>
-                    <td>{{ request.start_date }}</td>
-                    <td>{{ request.end_date }}</td>
-                    <td>{{ request.reason }}</td>
-                    <td>{{ request.status }}</td>
-                    <td>
-                        <form method="POST">
-                            <input type="hidden" name="leave_id" value="{{ request._id }}">
-                            <button type="submit" name="action" value="approve">Approve</button>
-                            <button type="submit" name="action" value="reject">Reject</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="{{url_for('admin_home')}}">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Task Management</a>
+        <a href="{{url_for('admin_leave_requests')}}">Leave Management</a>
+        <a href="#">Learning & Development</a>
+        <a href="#">Attendance</a>
+        <a href="{{url_for('admin_complaints')}}">Reviews</a>
     </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, Admin {{username}}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+
+        <div class="container">
+            <h2>Leave Requests</h2>
+            {% if flash_messages %}
+            <div class="flash-message">
+                {% for message in flash_messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in leave_requests %}
+                    <tr>
+                        <td>{{ request.employee_email }}</td>
+                        <td>{{ request.leave_type }}</td>
+                        <td>{{ request.start_date }}</td>
+                        <td>{{ request.end_date }}</td>
+                        <td>{{ request.reason }}</td>
+                        <td>{{ request.status }}</td>
+                        <td>
+                            <form method="POST">
+                                <input type="hidden" name="leave_id" value="{{ request._id }}">
+                                <button type="submit" name="action" value="approve">Approve</button>
+                                <button type="submit" name="action" value="reject">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+      
+
+        <div class="footer">
+            <p>&copy; 2025 Admin Management System. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

@@ -4,71 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Leave</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7fc;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            animation: fadeIn 1s ease-out;
-        }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        label {
-            font-size: 16px;
-            color: #34495e;
-            display: block;
-            margin-bottom: 10px;
-        }
-        input[type="date"], select, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0 20px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-        input[type="date"]:focus, select:focus, textarea:focus, button:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        button {
-            background-color: #3498db;
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            border: none;
-            transition: 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-        }
-        .flash-message {
-            text-align: center;
-            margin-bottom: 20px;
-            color: green;
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-    </style>
+    <link rel="stylesheet" href="../static/emp_request_leave.css" />
+    <link rel="stylesheet" href="../static/home.css" />
 </head>
+<style>
+    /* General styles */
+ 
+</style>
 <body>
-    <div class="container">
+    <!-- Burger Icon for Mobile -->
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Employee Dashboard</h2>
+        <a href="{{url_for('home')}}">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Task Management</a>
+        <a href="{{ url_for('request_leave') }}">Leave Management</a>
+        <a href="#">Learning & Development</a>
+        <a href="#">Attendance</a>
+        <a href="{{url_for('complaints')}}">Reviews</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, {{ username }}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    <div class="containerone">
         <h2>Request Leave</h2>
         {% if flash_messages %}
         <div class="flash-message">
@@ -96,6 +63,55 @@
 
             <button type="submit">Submit Leave Request</button>
         </form>
+
+        <!-- Leave Request History -->
+        <div class="history-section">
+            <h3>Leave Request History</h3>
+            {% if leave_requests %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Leave Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.leave_type }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No leave requests found.</p>
+            {% endif %}
+        </div>
     </div>
+    <script>
+        // JavaScript for toggling sidebar visibility
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
 </body>
 </html>

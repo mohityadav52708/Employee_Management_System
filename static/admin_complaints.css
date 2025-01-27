@@ -1,0 +1,192 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #1565c0;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 1rem;
+}
+
+table th {
+    background-color: #1565c0;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+table tr:nth-child(even) {
+    background-color: #f1f8ff;
+}
+
+table tr:hover {
+    background-color: #e3f2fd;
+    transition: background-color 0.3s ease;
+}
+
+/* Forms in table */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: none;
+}
+
+button {
+    background-color: #1e88e5;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0d47a1;
+}
+
+/* No complaints message */
+.no-complaints {
+    text-align: center;
+    color: #757575;
+    font-size: 1.2rem;
+    margin-top: 30px;
+}
+.resolve_reject{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    table th, table td {
+        font-size: 0.9rem;
+        padding: 5px;
+    }
+
+    textarea, button {
+        font-size: 0.85rem;
+    }
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+.resolve_reject {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.resolve_reject button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.resolve_reject button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.resolve_reject button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .burger-icon.open {
+        display: block;
+    }
+
+    .burger-icon.close {
+        display: none;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        display: none;
+    }
+
+    tbody tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    td {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        border: none;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        margin-right: 10px;
+        color: #333;
+    }
+
+    .resolve_reject {
+        justify-content: center;
+        gap: 90px;
+    }
+}

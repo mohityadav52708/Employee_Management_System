@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints</title>
+    <link rel="stylesheet" href="../static/employee_complaints.css" />
+    <link rel="stylesheet" href="../static/home.css" />
+</head>
+<style>
+    
+</style>
+<body>
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Employee Dashboard</h2>
+        <a href="{{url_for('home')}}">Dashboard</a>
+        <a href="#">Profile</a>
+        <a href="#">Task Management</a>
+        <a href="{{ url_for('request_leave') }}">Leave Management</a>
+        <a href="#">Learning & Development</a>
+        <a href="#">Attendance</a>
+        <a href="{{url_for('complaints')}}">Reviews</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, {{ username }}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    <h1>Submit a Complaint</h1>
+    <form method="POST" action="{{ url_for('complaints') }}">
+        <label for="title">Complaint Title:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="description">Complaint Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        <button type="submit">Submit Complaint</button>
+    </form>
+
+    <h2>Your Complaints</h2>
+    {% if complaints %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Admin Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint['title'] }}</td>
+                        <td>{{ complaint['description'] }}</td>
+                        <td>{{ complaint['status'] }}</td>
+                        <td>{{ complaint['response'] if complaint['response'] else "No response yet" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-complaints">You have not submitted any complaints yet.</p>
+    {% endif %}
+    <script>
+        // JavaScript for toggling sidebar visibility
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
