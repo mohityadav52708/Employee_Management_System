@@ -9,4 +9,6 @@ numpy
 pymongo
 bcrypt
 plotly
+ssl
+flsk-cors
 
