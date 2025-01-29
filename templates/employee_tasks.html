@@ -34,7 +34,7 @@
     <div class="containerone">
         <h1>Employee - Task Management</h1>
         <h2>My Tasks</h2>
-        <table>
+        <table id="table">
             <thead>
                 <tr>
                     <th>Task Title</th>
@@ -67,5 +67,24 @@
             </tbody>
         </table>
     </div>
+    <script>
+   // JavaScript for toggling sidebar visibility
+   const burgerIcon = document.getElementById("burgerIcon");
+   const burgerIconClose = document.getElementById("burgerIconClose");
+   const sidebar = document.getElementById("sidebar");
+
+   burgerIcon.addEventListener("click", () => {
+     sidebar.classList.add("show");
+     burgerIcon.style.display = "none";
+     burgerIconClose.style.display = "block";
+   });
+
+   burgerIconClose.addEventListener("click", () => {
+     sidebar.classList.remove("show");
+     burgerIcon.style.display = "block";
+     burgerIconClose.style.display = "none";
+   });
+
+    </script>
 </body>
 </html>

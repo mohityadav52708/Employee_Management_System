@@ -375,8 +375,10 @@ def tasks():
             tasks = list(db.tasks.find())
             return render_template('admin_tasks.html', tasks=tasks)
         elif session['role'] == 'employee':
+            user = users_collection.find_one({"email": session['user']})
+            username = user['username']
             tasks = list(db.tasks.find({"employee_email": session['user']}))
-            return render_template('employee_tasks.html', tasks=tasks)
+            return render_template('employee_tasks.html', tasks=tasks,username=username)
 
 @app.route('/update-task-status', methods=['POST'])
 def update_task_status():
