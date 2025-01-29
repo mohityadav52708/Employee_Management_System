@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Complaints</title>
     <link rel="stylesheet" href="../static/admin_complaints.css" />
-    <link rel="stylesheet" href="../static/home.css" />
+    <link rel="stylesheet" href="../static/admin_home.css" />
 
 </head>
 
@@ -17,7 +17,7 @@
         <h2>Admin Dashboard</h2>
         <a href="{{url_for('admin_home')}}">Dashboard</a>
         <a href="#">Profile</a>
-        <a href="#">Task Management</a>
+        <a href="{{url_for('tasks')}}">Task Management</a>
         <a href="{{url_for('admin_leave_requests')}}">Leave Management</a>
         <a href="#">Learning & Development</a>
         <a href="#">Attendance</a>

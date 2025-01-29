@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Task Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="../static/home.css" />
+    <link rel="stylesheet" href="../static/emp_tasks.css" />
+</head>
+<body>
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <h2>Employee Dashboard</h2>
+      <a href="{{url_for('home')}}">Dashboard</a>
+      <a href="#">Profile</a>
+      <a href="{{url_for('tasks')}}">Task Management</a>
+      <a href="{{ url_for('request_leave') }}">Leave Management</a>
+      <a href="#">Learning & Development</a>
+      <a href="#">Attendance</a>
+      <a href="{{url_for('complaints')}}">Reviews</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <div class="header">
+        <h1>Welcome, {{ username }}</h1>
+          
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    <div class="containerone">
+        <h1>Employee - Task Management</h1>
+        <h2>My Tasks</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Task Title</th>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <form action="/update-task-status" method="POST">
+                            <input type="hidden" name="task_id" value="{{ task._id }}">
+                            <select name="status" required>
+                                <option value="" disabled selected>Update Status</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                            <button id="task_submit" type="submit">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

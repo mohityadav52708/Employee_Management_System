@@ -1,0 +1,125 @@
+ 
+    
+    .containerone {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1, h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    form {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+    
+    input, textarea, select, button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    table, th, td {
+        border: 1px solid #ccc;
+    }
+    
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+    
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+    @media (max-width: 768px) {
+        body{
+            height: auto;
+        }
+        table {
+            border: 0;
+        }
+    
+        table thead {
+            display: none; /* Hide table header for mobile */
+        }
+    
+        table tr {
+            display: block; /* Display rows as blocks */
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        table td {
+            display: block; /* Display cells as blocks */
+            text-align: right; /* Align content to the right for labels */
+            font-size: 14px;
+            padding: 10px 5px;
+            position: relative;
+            color: black;
+        }
+    
+        table td::before {
+            content: attr(data-label); /* Use the data-label attribute as a label */
+            position: absolute;
+            left: 0;
+            width: 50%;
+            padding-left: 10px;
+            font-weight: bold;
+            color: #000000;
+            text-align: left;
+        }
+    
+        table td:last-child {
+            text-align: center; /* Center the action buttons */
+        }
+    }
+    
+    @media (max-width: 480px) {
+        body{
+            height: auto;
+        }
+        h1, h2 {
+            font-size: 1.5rem;
+        }
+    
+        button {
+            font-size: 12px;
+            padding: 8px 10px;
+        }
+    }
+    

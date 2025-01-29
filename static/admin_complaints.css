@@ -9,7 +9,7 @@ body {
 
 h1 {
     text-align: center;
-    color: #1565c0;
+    color: #ffffff;
     font-size: 2.2rem;
     margin-bottom: 20px;
 }
@@ -23,13 +23,15 @@ table {
     overflow: hidden;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    border: 2px solid black;
 }
 
 table th, table td {
     padding: 15px;
     text-align: left;
-    border-bottom: 1px solid #eeeeee;
+    /* border-bottom: 1px solid #eeeeee; */
     font-size: 1rem;
+    color: #000;
 }
 
 table th {
@@ -176,6 +178,7 @@ th {
         justify-content: space-between;
         margin-bottom: 10px;
         border: none;
+        color: black;
     }
 
     td::before {

@@ -5,13 +5,15 @@ body {
     padding: 20px;
 }
 .containerone {
-    max-width: 800px;
-    margin: 50px auto;
+    max-width: 600px;
+    margin: 0px auto;
     padding: 30px;
     background-color: #fff;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     animation: fadeIn 1s ease-out;
+    margin-left: 500px;
+
 }
 h2 {
     text-align: center;
@@ -55,7 +57,8 @@ button:hover {
     color: green;
 }
 .history-section {
-    margin-top: 40px;
+    margin-top: 0px;
+    color: black;
 }
 .history-table {
     width: 100%;
@@ -67,6 +70,7 @@ button:hover {
     text-align: left;
     border: 1px solid #ddd;
     font-size: 14px;
+    color: black;
 }
 .history-table th {
     background-color: #3498db;

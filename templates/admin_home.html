@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../static/admin_home.css" />
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -16,16 +17,15 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <h2>Admin Dashboard</h2>
-        <a href="#">Dashboard</a>
-        <a href="#">Employee Management</a>
-        <a href="#">Task Tracking</a>
+        <a href="{{url_for('admin_home')}}">Dashboard</a>
+        <a href="{{url_for('employee_details')}}">Employee Management</a>
+        <a href="{{url_for('tasks')}}">Task Tracking</a>
         <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
         <a href="#">Performance Reviews</a>
         <a href="#">Reports</a>
         <a href="{{url_for('admin_complaints')}}">Employee Reviews</a>
     </div>
 
-    <!-- Main Content -->
     <div class="content">
         <div class="header">
             <h1>Welcome, Admin {{username}}</h1>
@@ -37,19 +37,19 @@
             <div class="card">
                 <h3>Employee Overview</h3>
                 <p>View and manage all employees' details.</p>
-                <a href="#" class="btn">View Employees</a>
+                <a href="{{url_for('employee_details')}}" class="btn">View Employees</a>
             </div>
 
             <div class="card">
                 <h3>Task Assignments</h3>
                 <p>Assign and monitor tasks for employees.</p>
-                <a href="#" class="btn">Manage Tasks</a>
+                <a href="{{url_for('tasks')}}" class="btn">Manage Tasks</a>
             </div>
 
             <div class="card">
                 <h3>Leave Approvals</h3>
                 <p>Review and approve pending leave requests.</p>
-                <a href="#" class="btn">Manage Leaves</a>
+                <a href="{{url_for('admin_leave_requests')}}" class="btn">Manage Leaves</a>
             </div>
 
             <div class="card">

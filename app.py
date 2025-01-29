@@ -45,7 +45,7 @@ def send_email(email, subject, body):
         server.sendmail(sender_email, email, message.as_string())
 
 def generate_otp():
-    return ''.join(random.choices(string.digits, k=6))
+    return ''.join(random.choices(string.digits, k=6)) 
 
 
 # Routes
@@ -294,10 +294,11 @@ def complaints():
 
             flash('Complaint submitted successfully!', 'success')
             return redirect(url_for('complaints'))
-        
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
         # Retrieve all complaints submitted by the current employee
         user_complaints = list(db.complaints.find({"employee_email": session['user']}))
-        return render_template('complaints.html', complaints=user_complaints)
+        return render_template('complaints.html', complaints=user_complaints,username=username)
     else:
         flash('You must be logged in as an employee to submit complaints.', 'danger')
         return redirect(url_for('login'))
@@ -334,6 +335,72 @@ def admin_complaints():
     else:
         flash('Access denied. Only admin can manage complaints.', 'danger')
         return redirect(url_for('login'))
+@app.route('/employee-details', methods=['GET'])
+def employee_details():
+    if 'user' in session and session.get('role') == 'admin':
+        # Fetch all employee details (excluding admin)
+        employees = list(users_collection.find({"role": "employee"}))
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        
+        # Pass the employee data to the template
+        return render_template('employee_details.html', employees=employees, username=username)
+    else:
+        flash('Access denied. Only admin can view employee details.', 'danger')
+        return redirect(url_for('login'))
+
+@app.route('/assign-task', methods=['POST'])
+def assign_task():
+    if 'user' in session and session.get('role') == 'admin':
+        employee_email = request.form['employee_email']
+        task_title = request.form['task_title']
+        task_description = request.form['task_description']
+        due_date = request.form['due_date']
+
+        db.tasks.insert_one({
+            "employee_email": employee_email,
+            "title": task_title,
+            "description": task_description,
+            "due_date": due_date,
+            "status": "Pending"
+        })
+
+        flash('Task assigned successfully!', 'success')
+        return redirect(url_for('admin_home'))
+
+@app.route('/tasks', methods=['GET'])
+def tasks():
+    if 'user' in session:
+        if session['role'] == 'admin':
+            tasks = list(db.tasks.find())
+            return render_template('admin_tasks.html', tasks=tasks)
+        elif session['role'] == 'employee':
+            tasks = list(db.tasks.find({"employee_email": session['user']}))
+            return render_template('employee_tasks.html', tasks=tasks)
+
+@app.route('/update-task-status', methods=['POST'])
+def update_task_status():
+    if 'user' in session and session.get('role') == 'employee':
+        task_id = request.form['task_id']
+        status = request.form['status']
+        db.tasks.update_one({"_id": ObjectId(task_id)}, {"$set": {"status": status}})
+        flash('Task status updated successfully!', 'success')
+        return redirect(url_for('tasks'))
+@app.route('/get-availability', methods=['GET'])
+def get_availability():
+    if 'user' in session:
+        user = users_collection.find_one({"email": session['user']})
+        return {"available": user.get("available", False)}
+    return {"error": "Unauthorized"}, 401
+
+@app.route('/toggle-availability', methods=['POST'])
+def toggle_availability():
+    if 'user' in session:
+        user = users_collection.find_one({"email": session['user']})
+        new_status = not user.get("available", False)
+        users_collection.update_one({"email": session['user']}, {"$set": {"available": new_status}})
+        return {"available": new_status}
+    return {"error": "Unauthorized"}, 401
 
 if __name__ == '__main__':
     app.run(debug=True)

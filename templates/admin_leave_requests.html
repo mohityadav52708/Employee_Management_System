@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Requests</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/home.css" />
+    <link rel="stylesheet" href="../static/admin_home.css" />
     <link rel="stylesheet" href="../static/admin_leave.css" />
-    <style>
-        body{
-            padding: 20px;
-        }
-    </style>
+   
 </head>
 <body>
     <div class="burger-icon open" id="burgerIcon">&#9776;</div>
@@ -21,7 +17,7 @@
         <h2>Admin Dashboard</h2>
         <a href="{{url_for('admin_home')}}">Dashboard</a>
         <a href="#">Profile</a>
-        <a href="#">Task Management</a>
+        <a href="{{url_for('tasks')}}">Task Management</a>
         <a href="{{url_for('admin_leave_requests')}}">Leave Management</a>
         <a href="#">Learning & Development</a>
         <a href="#">Attendance</a>
@@ -34,7 +30,7 @@
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
 
-        <div class="container">
+        <div class="containerone">
             <h2>Leave Requests</h2>
             {% if flash_messages %}
             <div class="flash-message">
@@ -44,7 +40,7 @@
             </div>
             {% endif %}
 
-            <table>
+            <table id="table">
                 <thead>
                     <tr>
                         <th>Employee</th>

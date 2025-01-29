@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Task Management</title>
+    <link rel="stylesheet" href="/static/admin_home.css">
+    <link rel="stylesheet" href="/static/admin_tasks.css">
+</head>
+
+<body>
+    <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+    <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Dashboard</h2>
+        <a href="{{url_for('admin_home')}}">Dashboard</a>
+        <a href="{{url_for('employee_details')}}">Employee Management</a>
+        <a href="{{url_for('tasks')}}">Task Tracking</a>
+        <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
+        <a href="#">Performance Reviews</a>
+        <a href="#">Reports</a>
+        <a href="{{url_for('admin_complaints')}}">Employee Reviews</a>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>Welcome, Admin {{username}}</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    <div class="containerone">
+        <h1>Admin - Task Management</h1>
+        <form id="task-form" action="/assign-task" method="POST">
+            <h2>Assign a Task</h2>
+            <label for="employee-email">Employee Email:</label>
+            <input type="email" id="employee-email" name="employee_email" required>
+            
+            <label for="task-title">Task Title:</label>
+            <input type="text" id="task-title" name="task_title" required>
+            
+            <label for="task-description">Task Description:</label>
+            <textarea id="task-description" name="task_description" required></textarea>
+            
+            <label for="due-date">Due Date:</label>
+            <input type="date" id="due-date" name="due_date" required>
+            
+            <button type="submit">Assign Task</button>
+        </form>
+        <hr>
+        <h2>All Tasks</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Task Title</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.employee_email }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // JavaScript for toggling sidebar visibility
+        const burgerIcon = document.getElementById('burgerIcon');
+        const burgerIconClose = document.getElementById('burgerIconClose');
+        const sidebar = document.getElementById('sidebar');
+
+        burgerIcon.addEventListener('click', () => {
+            sidebar.classList.add('show');
+            burgerIcon.style.display = 'none';
+            burgerIconClose.style.display = 'block';
+        });
+
+        burgerIconClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            burgerIcon.style.display = 'block';
+            burgerIconClose.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
