@@ -371,12 +371,12 @@ def assign_task():
 @app.route('/tasks', methods=['GET'])
 def tasks():
     if 'user' in session:
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
         if session['role'] == 'admin':
             tasks = list(db.tasks.find())
-            return render_template('admin_tasks.html', tasks=tasks)
+            return render_template('admin_tasks.html', tasks=tasks,username=username)
         elif session['role'] == 'employee':
-            user = users_collection.find_one({"email": session['user']})
-            username = user['username']
             tasks = list(db.tasks.find({"employee_email": session['user']}))
             return render_template('employee_tasks.html', tasks=tasks,username=username)
 

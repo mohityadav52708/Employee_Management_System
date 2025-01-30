@@ -157,7 +157,7 @@ body {
 }
 
 .burger-icon.open {
-    display: block;
+    display: none;
     width:14%;
 }
 
