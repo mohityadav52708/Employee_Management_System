@@ -191,4 +191,7 @@ th {
         justify-content: center;
         gap: 90px;
     }
+    h1{
+        margin-bottom: 0px;
+    }
 }
