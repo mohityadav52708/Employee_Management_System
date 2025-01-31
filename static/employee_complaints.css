@@ -2,8 +2,10 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
     background-color: #f8f9fa;
+    width: 100%;
+    height: 100vh;
+    background-image: no-repeat;
 }
 
 /* Header styles */
@@ -57,7 +59,7 @@ button:hover {
 /* Table styles */
 table {
     width: 75%;
-    margin-left: 250px;
+    margin-left: 270px;
     border-collapse: collapse;
     animation: fadeIn 1s ease-in-out;
 }

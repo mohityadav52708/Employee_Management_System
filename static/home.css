@@ -9,10 +9,11 @@ body {
     background-color: #f9fafb;
     color: #fff;
     line-height: 1.6;
-    padding: 20px;
     background-image: linear-gradient(45deg,red,blue,aqua);
     background-position: center;
     z-index: inherit;
+    width: 100%;
+    height: auto;
 }
 
 /* Container for the main content */
@@ -213,7 +214,24 @@ body {
     background-color: #e0a800;
     box-shadow: 0 6px 12px rgba(255, 193, 7, 0.6);
 }
-
+.image{
+    width: auto;
+    margin-left: 250px;
+    height: 15vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    color: white;
+    background-color: #001831;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.image #mobile{
+    display: none;
+}
+.image #dekstop{
+   display: block;
+}
 /* Responsive Design */
 @media (max-width: 1024px) {
     .sidebar {
@@ -322,5 +340,23 @@ body {
 
     .sidebar.show {
         display: block;
+    }
+    .image{
+        margin-left: 0px;
+    }
+    .image #mobile{
+        font-size: 16px;
+        display: block;
+        text-align: center;
+        margin-left: 10px;
+    }
+    .image #dekstop{
+       display: none;
+    }
+    .logout-btn {
+        width: 20%;
+        padding: 6px;
+        font-size: 16px;
+        margin: 0px 15px;
     }
 }
