@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Update</title>
+    <link rel="stylesheet" href="../static/profile.css">
+</head>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f3f4f6;
+        text-align: center;
+    }
+    
+    .container {
+        width: 50%;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    h2 {
+        color: #1f2937;
+    }
+    
+    .profile-pic img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2563eb;
+        margin-bottom: 10px;
+    }
+    
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+    
+    button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #1e3a8a;
+    }
+    .profile-image img{
+        width:300px;
+        height:auto;
+    }
+</style>
+<body>
+
+    <div class="profile-container">
+        <h2>Update Profile</h2>
+
+        <div class="profile-image">
+            {% if user.profile_image %}
+                <img src="{{ user.profile_image }}" alt="Profile Image">
+            {% else %}
+                <img src="{{ url_for('static', filename='default-profile.png') }}" alt="Default Profile">
+            {% endif %}
+        </div>
+
+        <form action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
+            <label>Username:</label>
+            <input type="text" name="username" value="{{ user.username }}" required>
+
+            <label>Department:</label>
+            <input type="text" name="department" value="{{ user.department if user.department else '' }}" required>
+
+            <label>Phone Number:</label>
+            <input type="text" name="phone" value="{{ user.phone if user.phone else '' }}" required>
+
+            <label>Upload Profile Image:</label>
+            <input type="file" name="profile_image" accept="image/*">
+
+            <button type="submit">Update Profile</button>
+        </form>
+    </div>
+</body>
+</html>

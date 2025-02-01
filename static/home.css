@@ -232,8 +232,17 @@ body {
    display: block;
 }
 #mobile{
-    display: none;
-    
+    display: none;  
+}
+.profile-section{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+}
+.profile-section img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
 }
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -373,5 +382,9 @@ body {
     text-align: center;
     margin-top: 0px;
     }
-    
+    .profile-section {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+    }
 }

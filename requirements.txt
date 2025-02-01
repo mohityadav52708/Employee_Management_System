@@ -10,4 +10,4 @@ Flask
 pymongo
 bcrypt
 flask-cors
-
+cloudinary

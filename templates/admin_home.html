@@ -115,7 +115,18 @@
         </div>
 
     </div>
-
+ <!-- Flash Message for Unauthorized Access -->
+ {% with messages = get_flashed_messages(with_categories=true) %}
+ {% if messages %}
+     <script>
+         window.onload = function() {
+             {% for category, message in messages %}
+                 alert("{{ message }}");
+             {% endfor %}
+         };
+     </script>
+ {% endif %}
+{% endwith %}
 
     <script>
         // JavaScript for toggling sidebar visibility

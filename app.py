@@ -9,9 +9,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import ssl
+import cloudinary
+import cloudinary.uploader
 from bson.objectid import ObjectId
 from datetime import datetime
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -25,6 +28,62 @@ attendance_collection = db["attendance"]
 app.config['MAIL_USERNAME'] = 'librarymanagementprjoect@gmail.com'
 app.config['MAIL_PASSWORD'] = 'ykqy zkvd zzak ujpa'
 CORS(app)  # Enable CORS for front-end communication
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+cloudinary.config(
+    cloud_name="dxoxq2pe1",
+    api_key="329235461831941",
+    api_secret="--HbEmUPXfkxokCWL0NWQmbvNaY"
+)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user' not in session:
+        flash("Please log in to update your profile.", "danger")
+        return redirect(url_for('login'))
+
+    user = users_collection.find_one({"email": session['user']})
+
+    if request.method == 'POST':
+        username = request.form['username']
+        department = request.form['department']
+        phone = request.form['phone']
+
+        update_data = {
+            "username": username,
+            "department": department,
+            "phone": phone
+        }
+
+        # ✅ Upload Profile Image to Cloudinary
+        if 'profile_image' in request.files:
+            file = request.files['profile_image']
+            if file:
+                upload_result = cloudinary.uploader.upload(file)
+                profile_image_url = upload_result['secure_url']  # Cloudinary URL
+                update_data["profile_image"] = profile_image_url
+
+        # ✅ Update User in MongoDB
+        users_collection.update_one({"email": session['user']}, {"$set": update_data})
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=user)
+
+
+@app.route('/admin/employees')
+def admin_employees():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash("Access denied!", "danger")
+        return redirect(url_for('login'))
+
+    employees = list(users_collection.find({"role": "employee"}))
+    return render_template('admin_employees.html', employees=employees)
 
 # Helper Functions
 def send_email(email, subject, body):
@@ -141,11 +200,14 @@ def reset_password():
             flash('Invalid OTP.', 'danger')
     return render_template('reset_password.html', email=email)
 
+from datetime import datetime
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        portal = request.args.get('portal', 'employee')  # Default portal is 'employee'
 
         user = users_collection.find_one({"email": email})
 
@@ -153,24 +215,31 @@ def login():
             session['user'] = email
             session['role'] = user.get('role', 'employee')
 
+            # Access control: Ensure correct portal login
+            if portal == 'admin' and session['role'] != 'admin':
+                return render_template('login.html', alert_message="Access denied. Only admin can access this page.")
+
+            if portal == 'employee' and session['role'] != 'employee':
+                return render_template('login.html', alert_message="Access denied. Only employees can access this page.")
+
             # Mark employee as Online & log attendance
-            today = datetime.today().strftime('%Y-%m-%d')
-            login_time = datetime.now()
+            if session['role'] == 'employee':
+                today = datetime.today().strftime('%Y-%m-%d')
+                login_time = datetime.now()
 
-            attendance_collection.update_one(
-                {"email": email, "date": today},
-                {"$set": {"status": "Online", "login_time": login_time}},
-                upsert=True
-            )
+                attendance_collection.update_one(
+                    {"email": email, "date": today},
+                    {"$set": {"status": "Online", "login_time": login_time}},
+                    upsert=True
+                )
 
-            if session['role'] == 'admin':
-                return redirect(url_for('admin_home'))
-            else:
-                return redirect(url_for('home'))
+            # Redirect based on user role
+            return redirect(url_for('admin_home' if session['role'] == 'admin' else 'home'))
+
         else:
             flash('Invalid email or password.', 'danger')
-    return render_template('login.html')
 
+    return render_template('login.html')
 
 @app.route('/request-leave', methods=['GET', 'POST'])
 def request_leave():
@@ -262,7 +331,6 @@ def logout():
             )
 
     session.clear()
-    flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
 @app.route('/admin_home')
 def admin_home():
@@ -283,11 +351,15 @@ def admin_home():
 def home():
     if 'user' in session and session.get('role') == 'employee':
         user = users_collection.find_one({"email": session['user']})
-        username = user['username']
-        return render_template('home.html', username=username)
+        if user:
+            return render_template('home.html', user=user, username=user.get('username', 'User'))
+        else:
+            flash("User not found.", "danger")
+            return redirect(url_for('login'))
     else:
         flash('Access denied. Please log in as an employee.', 'danger')
         return redirect(url_for('login'))
+
 
 @app.route('/complaints', methods=['GET', 'POST'])
 def complaints():

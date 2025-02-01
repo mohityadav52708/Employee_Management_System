@@ -20,12 +20,16 @@
       <div class="burger-icon open" id="burgerIcon">&#9776;</div>
       <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
       <button id="availabilityToggle" class="availability-btn">Loading...</button>
+      <div class="profile-section">
+        <img src="{{ user.profile_image if user.profile_image else url_for('static', filename='default-profile.png') }}" 
+            alt="Profile Image" class="profile-img">
+    </div>
       <a href="/logout" class="logout-btn">Logout</a>
   </div>
   <div class="sidebar" id="sidebar">
       <h2>Employee Dashboard</h2>
       <a href="{{url_for('home')}}">Dashboard</a>
-        <a href="#">Profile</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
         <a href="{{url_for('tasks')}}">Task Management</a>
         <a href="{{ url_for('request_leave') }}">Leave Management</a>
         <a href="#">Learning & Development</a>
@@ -102,7 +106,17 @@
         <p>&copy; 2025 Employee Management System. All Rights Reserved.</p>
       </div>
     </div>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            window.onload = function() {
+                {% for category, message in messages %}
+                    alert("{{ message }}");
+                {% endfor %}
+            };
+        </script>
+    {% endif %}
+{% endwith %}
     <script>
       // JavaScript for toggling sidebar visibility
       const burgerIcon = document.getElementById("burgerIcon");
