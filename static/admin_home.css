@@ -353,7 +353,6 @@ body {
     /* Show Burger Icon */
     .burger-icon {
         display: block;
-        margin-left: auto;
         font-size: 30px;
         cursor: pointer;
     }
