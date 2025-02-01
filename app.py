@@ -12,6 +12,7 @@ import ssl
 import cloudinary
 import cloudinary.uploader
 from bson.objectid import ObjectId
+import datetime
 from datetime import datetime
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -200,7 +201,7 @@ def reset_password():
             flash('Invalid OTP.', 'danger')
     return render_template('reset_password.html', email=email)
 
-from datetime import datetime
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -367,7 +368,7 @@ def complaints():
         if request.method == 'POST':
             complaint_title = request.form['title']
             complaint_description = request.form['description']
-            timestamp = datetime.datetime.now()
+            timestamp = datetime.now()
 
             # Insert the complaint into the database
             complaint = {
@@ -390,6 +391,8 @@ def complaints():
     else:
         flash('You must be logged in as an employee to submit complaints.', 'danger')
         return redirect(url_for('login'))
+
+
 
 
 @app.route('/admin-complaints', methods=['GET', 'POST'])
