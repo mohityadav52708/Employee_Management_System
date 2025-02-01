@@ -355,6 +355,7 @@ body {
         display: block;
         font-size: 30px;
         cursor: pointer;
+        text-align: center;
     }
 
     .burger-icon.open {
