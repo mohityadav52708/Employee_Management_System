@@ -246,7 +246,7 @@ footer {
 
     table td {
         display: block; /* Display cells as blocks */
-        text-align: right; /* Align content to the right for labels */
+        text-align: left; /* Align content to the right for labels */
         font-size: 14px;
         padding: 10px 5px;
         position: relative;

@@ -176,7 +176,6 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     color: white;
-    margin: 17px auto;
 }
 
 /* Available - Green */
@@ -231,6 +230,10 @@ body {
 }
 .image #dekstop{
    display: block;
+}
+#mobile{
+    display: none;
+    
 }
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -329,13 +332,16 @@ body {
     /* Show Burger Icon */
     .burger-icon {
         display: block;
-        margin-left: auto;
         font-size: 30px;
         cursor: pointer;
     }
 
     .burger-icon.open {
         display: block;
+        text-align: center;
+    }
+    .burger-icon.close{
+        text-align: center;
     }
 
     .sidebar.show {
@@ -359,4 +365,13 @@ body {
         font-size: 16px;
         margin: 0px 15px;
     }
+    #mobile{
+        font-size: 16px;
+        display: block;
+        text-align: center;
+    font-size: 30px;
+    text-align: center;
+    margin-top: 0px;
+    }
+    
 }

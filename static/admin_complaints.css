@@ -1,10 +1,4 @@
 /* General styles */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-    color: #333;
-}
 
 h1 {
     text-align: center;
@@ -159,6 +153,7 @@ th {
 
     table, thead, tbody, th, td, tr {
         display: block;
+        border: 2px solid white;
     }
 
     thead tr {
@@ -178,10 +173,10 @@ th {
         margin-bottom: 10px;
         border: none;
         color: black;
+        text-align: left;
     }
 
     td::before {
-        content: attr(data-label);
         font-weight: bold;
         margin-right: 10px;
         color: #333;

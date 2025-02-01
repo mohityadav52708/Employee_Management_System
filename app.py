@@ -10,6 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import ssl
 from bson.objectid import ObjectId
+from datetime import datetime
 from flask_cors import CORS
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -19,7 +20,7 @@ uri = "mongodb+srv://whitedevil7628:mohit038@cluster1.oohsn.mongodb.net/myDataba
 client = MongoClient(uri)
 db = client["endsem"]
 users_collection = db["users"]
-
+attendance_collection = db["attendance"]
 # Email Configuration
 app.config['MAIL_USERNAME'] = 'librarymanagementprjoect@gmail.com'
 app.config['MAIL_PASSWORD'] = 'ykqy zkvd zzak ujpa'
@@ -145,23 +146,23 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        portal = request.args.get('portal', 'employee')  # Default to 'employee' portal
 
         user = users_collection.find_one({"email": email})
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
             session['user'] = email
-            session['role'] = user.get('role', 'employee')  # Set the user's role
+            session['role'] = user.get('role', 'employee')
 
-            # Check if the user is accessing the correct portal
-            if portal == 'admin' and session['role'] != 'admin':
-                flash('Access denied. Only admin can access this page.', 'danger')
-                return render_template('login.html', alert_message="Access denied. Only admin can access this page.")
-            if portal == 'employee' and session['role'] != 'employee':
-                flash('Access denied. Only employee can access this page.', 'danger')
-                return render_template('login.html', alert_message="Access denied. Only employee can access this page.")
+            # Mark employee as Online & log attendance
+            today = datetime.today().strftime('%Y-%m-%d')
+            login_time = datetime.now()
 
-            # Redirect based on the role (admin or employee)
+            attendance_collection.update_one(
+                {"email": email, "date": today},
+                {"$set": {"status": "Online", "login_time": login_time}},
+                upsert=True
+            )
+
             if session['role'] == 'admin':
                 return redirect(url_for('admin_home'))
             else:
@@ -170,30 +171,6 @@ def login():
             flash('Invalid email or password.', 'danger')
     return render_template('login.html')
 
-@app.route('/admin_home')
-def admin_home():
-    if 'user' in session and session.get('role') == 'admin':
-        user = users_collection.find_one({"email": session['user']})
-        if user:
-            username = user['username']
-            return render_template('admin_home.html',username=username)
-    else:
-        flash('Access denied. Only admin can access this page.', 'danger')
-        return redirect(url_for('login'))
-
-@app.route('/home')
-def home():
-    if 'user' in session and session.get('role') == 'employee':
-        user = users_collection.find_one({"email": session['user']})
-        if user:
-            username = user['username']
-            return render_template('home.html', username=username)
-        else:
-            flash('User not found.', 'danger')
-            return redirect(url_for('login'))
-    else:
-        flash('Access denied. Please log in as an employee.', 'danger')
-        return redirect(url_for('login'))
 
 @app.route('/request-leave', methods=['GET', 'POST'])
 def request_leave():
@@ -269,9 +246,48 @@ def admin_leave_requests():
 
 @app.route('/logout')
 def logout():
+    if 'user' in session:
+        email = session['user']
+        today = datetime.today().strftime('%Y-%m-%d')
+
+        # Mark employee as Offline & log logout time
+        login_record = attendance_collection.find_one({"email": email, "date": today})
+        if login_record and "login_time" in login_record:
+            logout_time = datetime.now()
+            duration = logout_time - login_record["login_time"]
+
+            attendance_collection.update_one(
+                {"email": email, "date": today},
+                {"$set": {"status": "Offline", "logout_time": logout_time, "duration": str(duration)}}
+            )
+
     session.clear()
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
+@app.route('/admin_home')
+def admin_home():
+    if 'user' in session and session.get('role') == 'admin' :
+        online_employees = list(attendance_collection.find({"status": "Online"}))
+        attendance_records = list(attendance_collection.find())
+
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        
+        return render_template('admin_home.html', online_employees=online_employees, attendance_records=attendance_records, username=username)
+    else:
+        flash('Access denied. Only admin can access this page.', 'danger')
+        return redirect(url_for('login'))
+
+
+@app.route('/home')
+def home():
+    if 'user' in session and session.get('role') == 'employee':
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
+        return render_template('home.html', username=username)
+    else:
+        flash('Access denied. Please log in as an employee.', 'danger')
+        return redirect(url_for('login'))
 
 @app.route('/complaints', methods=['GET', 'POST'])
 def complaints():
@@ -403,6 +419,15 @@ def toggle_availability():
         users_collection.update_one({"email": session['user']}, {"$set": {"available": new_status}})
         return {"available": new_status}
     return {"error": "Unauthorized"}, 401
+
+@app.route('/admin/attendance')
+def admin_attendance():
+    if 'user' in session and session.get('role') == 'admin':
+        attendance_records = list(attendance_collection.find())
+        return render_template('admin_attendance.html', attendance_records=attendance_records)
+    else:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
