@@ -431,10 +431,18 @@ def employee_details():
     if 'user' in session and session.get('role') == 'admin':
         # Fetch all employee details (excluding admin)
         employees = list(users_collection.find({"role": "employee"}))
+        today = datetime.today().strftime('%Y-%m-%d')
+        attendance_records = {
+            record["email"]: record["status"]
+            for record in attendance_collection.find({"date": today})
+        }
+
         user = users_collection.find_one({"email": session['user']})
         username = user['username']
-        
-        # Pass the employee data to the template
+
+        # Append attendance status to each employee record
+        for emp in employees:
+            emp["availability"] = attendance_records.get(emp["email"], "Offline")
         return render_template('employee_details.html', employees=employees, username=username)
     else:
         flash('Access denied. Only admin can view employee details.', 'danger')

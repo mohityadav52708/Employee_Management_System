@@ -122,9 +122,14 @@
                         <td>{{ emp.department or 'N/A' }}</td>
                         <td>{{ emp.phone or 'N/A' }}</td>
                         <td>{{ 'Verified' if emp.verified else 'Not Verified' }}</td>
-                        <td class="{{ 'online' if emp.available else 'offline' }}">
-                            {{ 'Online' if emp.available else 'Offline' }}
+                        <td>
+                            {% if emp.availability == "Online" %}
+                                <span style="color: #22c55e; font-weight: bold;">Online</span>
+                            {% else %}
+                                <span style="color: #ef4444; font-weight: bold;">Offline</span>
+                            {% endif %}
                         </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
