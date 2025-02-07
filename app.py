@@ -338,11 +338,54 @@ def admin_home():
     if 'user' in session and session.get('role') == 'admin' :
         online_employees = list(attendance_collection.find({"status": "Online"}))
         attendance_records = list(attendance_collection.find())
+        offline_count = attendance_collection.count_documents({"status": "Offline"})
 
         user = users_collection.find_one({"email": session['user']})
         username = user['username']
-        
-        return render_template('admin_home.html', online_employees=online_employees, attendance_records=attendance_records, username=username)
+        online_names_emails = [
+            f"{emp['email']} ({users_collection.find_one({'email': emp['email']})['username']})"
+            for emp in online_employees
+        ]
+        online_count = len(online_names_emails)
+        task_status_counts = {
+            "Pending": db.tasks.count_documents({"status": "Pending"}),
+            "In Progress": db.tasks.count_documents({"status": "In Progress"}),
+            "Completed": db.tasks.count_documents({"status": "Completed"})
+        }
+
+        # Fetch Leave Request Data
+        leave_status_counts = {
+            "Pending": db.leave_requests.count_documents({"status": "Pending"}),
+            "Approved": db.leave_requests.count_documents({"status": "Approved"}),
+            "Rejected": db.leave_requests.count_documents({"status": "Rejected"})
+        }
+
+        # Fetch Employee Reviews Data
+        review_status_counts = {
+            "Pending": db.complaints.count_documents({"status": "Pending"}),
+            "Resolved": db.complaints.count_documents({"status": "Resolved"}),
+            "Rejected": db.complaints.count_documents({"status": "Rejected"})
+        }
+
+        # Fetch Attendance Data
+        today = datetime.today().strftime('%Y-%m-%d')
+        attendance_counts = {
+            "Online": db.attendance_collection.count_documents({"date": today, "status": "Online"}),
+            "Offline": db.attendance_collection.count_documents({"date": today, "status": "Offline"})
+        }
+
+        return render_template(
+            'admin_home.html',
+            online_employees=online_employees,
+            online_count=online_count,
+            offline_count=offline_count,
+            attendance_records=attendance_records,
+            username=username,
+            task_status_counts=task_status_counts,
+            leave_status_counts=leave_status_counts,
+            review_status_counts=review_status_counts,
+            attendance_counts=attendance_counts
+        )
     else:
         flash('Access denied. Only admin can access this page.', 'danger')
         return redirect(url_for('login'))

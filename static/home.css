@@ -7,9 +7,10 @@
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f9fafb;
+    background-image: linear-gradient(90deg, #8ec4ff 0%, #fbfbfb 100.06%);
     color: #fff;
     line-height: 1.6;
-    background-image: linear-gradient(45deg,red,blue,aqua);
+    /* background-image: linear-gradient(45deg,red,blue,aqua); */
     background-position: center;
     z-index: inherit;
     width: 100%;
@@ -26,7 +27,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #001831;
+    background-image: linear-gradient(45deg,aqua, #0231f1);
     color: #fff;
     padding: 30px 20px;
     height: 100vh;
@@ -104,7 +105,7 @@ body {
     transition: all 0.3s;
     backdrop-filter: blur(3px) saturate(200%);
     -webkit-backdrop-filter: blur(3px) saturate(200%);
-    background-color: rgba(0, 4, 9, 0.7);
+    background-color: rgba(0, 0, 0, 0.9);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.125);
     color: white;
@@ -128,7 +129,7 @@ body {
 }
 
 .card .btn {
-    background-color: #007bff;
+    background-color: #5900ff;
     color: #fff;
     padding: 12px 20px;
     border-radius: 8px;
@@ -146,7 +147,7 @@ body {
     text-align: center;
     margin-top: 40px;
     font-size: 14px;
-    color: #ffffff;
+    color: #000000;
 }
 
 /* Burger Icon for Mobile */
@@ -221,7 +222,7 @@ body {
     justify-content: space-evenly;
     align-items: center;
     color: white;
-    background-color: #001831;
+    background-image: linear-gradient(45deg, #0231f1, aqua);
     background-repeat: no-repeat;
     background-size: cover;
 }
@@ -381,10 +382,77 @@ body {
     font-size: 30px;
     text-align: center;
     margin-top: 0px;
+    color: black;
     }
     .profile-section {
         width: 65px;
         height: 65px;
         border-radius: 50%;
     }
+}
+.card:nth-child(1) {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.card:nth-child(2) {
+    background: linear-gradient(135deg, #ff7eb3, #ff758c);
+}
+
+.card:nth-child(3) {
+    background: linear-gradient(135deg, #42e695, #3bb2b8);
+}
+
+.card:nth-child(4) {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+}
+
+.card:nth-child(5) {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.card:nth-child(6) {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+.card:nth-child(7) {
+    background: linear-gradient(135deg, #12c2e9, #c471ed);
+}
+
+.card {
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 14px;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.btn {
+    background: white;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    background: black;
+    color: white;
 }

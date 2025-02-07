@@ -1,150 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../static/admin_home.css" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
     <!-- Burger Icon for Mobile -->
 
     <!-- Sidebar -->
     <div class="image">
-
-        <h1 id="mobile">Welcome Back , <br> Admin {{username}}</h1>
-        <h1 id="dekstop">Welcome Back , Admin {{username}}</h1>
-        <div class="burger-icon open" id="burgerIcon">&#9776;</div>
-        <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
-        <a href="/logout" class="logout-btn">Logout</a>
+      <h1 id="mobile">
+        Welcome Back , <br />
+        Admin {{username}}
+      </h1>
+      <h1 id="dekstop">Welcome Back , Admin {{username}}</h1>
+      <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+      <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+      <a href="/logout" class="logout-btn">Logout</a>
     </div>
     <div class="sidebar" id="sidebar">
-        <h2>Admin Dashboard</h2>
-        <a href="{{url_for('admin_home')}}">Dashboard</a>
-        <a href="{{url_for('employee_details')}}">Employee Management</a>
-        <a href="{{url_for('tasks')}}">Task Tracking</a>
-        <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
-        <a href="#">Performance Reviews</a>
-        <a href="#">Reports</a>
-        <a href="{{url_for('admin_complaints')}}">Employee Reviews</a>
+      <h2>Admin Dashboard</h2>
+      <a href="{{url_for('admin_home')}}">Dashboard</a>
+      <a href="{{url_for('employee_details')}}">Employee Management</a>
+      <a href="{{url_for('tasks')}}">Task Tracking</a>
+      <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
+      <a href="#">Performance Reviews</a>
+      <a href="#">Reports</a>
+      <a href="{{url_for('admin_complaints')}}">Employee Reviews</a>
     </div>
 
     <div class="content">
-        <div class="header">
+      <div class="header"></div>
+
+      <!-- Dashboard Cards -->
+      <div class="container">
+        <div class="card">
+          <h3>Employee Overview</h3>
+          <p>View and manage all employees' details.</p>
+          <a href="{{url_for('employee_details')}}" class="btn"
+            >View Employees</a
+          >
         </div>
 
-        <!-- Dashboard Cards -->
-        <div class="container">
-            <div class="card">
-                <h3>Employee Overview</h3>
-                <p>View and manage all employees' details.</p>
-                <a href="{{url_for('employee_details')}}" class="btn">View Employees</a>
-            </div>
-
-            <div class="card">
-                <h3>Task Assignments</h3>
-                <p>Assign and monitor tasks for employees.</p>
-                <a href="{{url_for('tasks')}}" class="btn">Manage Tasks</a>
-            </div>
-
-            <div class="card">
-                <h3>Leave Approvals</h3>
-                <p>Review and approve pending leave requests.</p>
-                <a href="{{url_for('admin_leave_requests')}}" class="btn">Manage Leaves</a>
-            </div>
-
-            <div class="card">
-                <h3>Performance Tracking</h3>
-                <p>Analyze performance reviews and provide feedback.</p>
-                <a href="#" class="btn">Track Performance</a>
-            </div>
-
-            <div class="card">
-                <h3>Generate Reports</h3>
-                <p>Create detailed reports for employee statistics.</p>
-                <a href="#" class="btn">Generate Reports</a>
-            </div>
-
-            <div class="card">
-                <h3>System Settings</h3>
-                <p>Configure system settings and preferences.</p>
-                <a href="#" class="btn">Go to Settings</a>
-            </div>
-        </div>
-        <div class="section">
-            <h2>Online Employees</h2>
-            <div class="online-employees">
-                {% for emp in online_employees %}
-                    <div class="online-employee">{{ emp.email }} - Online since {{ emp.login_time }}</div>
-                {% endfor %}
-            </div>
+        <div class="card">
+          <h3>Task Assignments</h3>
+          <p>Assign and monitor tasks for employees.</p>
+          <a href="{{url_for('tasks')}}" class="btn">Manage Tasks</a>
         </div>
 
-        <!-- Attendance Table Section -->
-        <div class="section">
-            <h2>Attendance Records</h2>
-            <table id="table" class="attendance-table">
-                <tr id="heading_of_table">
-                    <th>Email</th>
-                    <th>Date</th>
-                    <th>Login Time</th>
-                    <th>Logout Time</th>
-                    <th>Duration</th>
-                    <th>Status</th>
-                </tr>
-                {% for record in attendance_records %}
-                <tr>
-                    <td>{{ record.email }}</td>
-                    <td>{{ record.date }}</td>
-                    <td>{{ record.login_time }}</td>
-                    <td>{{ record.logout_time if record.logout_time else 'Still Online' }}</td>
-                    <td>{{ record.duration if record.duration else 'N/A' }}</td>
-                    <td>
-                        {% if record.status == "Online" %}
-                            <span style="color: #22c55e; font-weight: bold;">Online</span>
-                        {% else %}
-                            <span style="color: #ef4444; font-weight: bold;">Offline</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="card">
+          <h3>Leave Approvals</h3>
+          <p>Review and approve pending leave requests.</p>
+          <a href="{{url_for('admin_leave_requests')}}" class="btn"
+            >Manage Leaves</a
+          >
         </div>
 
+        <div class="card">
+          <h3>Performance Tracking</h3>
+          <p>Analyze performance reviews and provide feedback.</p>
+          <a href="#" class="btn">Track Performance</a>
+        </div>
+
+        <div class="card">
+          <h3>Generate Reports</h3>
+          <p>Create detailed reports for employee statistics.</p>
+          <a href="#" class="btn">Generate Reports</a>
+        </div>
+
+        <div class="card">
+          <h3>System Settings</h3>
+          <p>Configure system settings and preferences.</p>
+          <a href="#" class="btn">Go to Settings</a>
+        </div>
+      </div>
+      <div class="section">
+        <h2>Online Employees</h2>
+        <div class="online-employees">
+          {% for emp in online_employees %}
+          <div class="online-employee">
+            {{ emp.email }} - Online since {{ emp.login_time }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Attendance Table Section -->
+      <div class="section">
+        <h2>Attendance Records</h2>
+        <table id="table" class="attendance-table">
+          <tr id="heading_of_table">
+            <th>Email</th>
+            <th>Date</th>
+            <th>Login Time</th>
+            <th>Logout Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+          </tr>
+          {% for record in attendance_records %}
+          <tr>
+            <td>{{ record.email }}</td>
+            <td>{{ record.date }}</td>
+            <td>{{ record.login_time }}</td>
+            <td>
+              {{ record.logout_time if record.logout_time else 'Still Online' }}
+            </td>
+            <td>{{ record.duration if record.duration else 'N/A' }}</td>
+            <td>
+              {% if record.status == "Online" %}
+              <span style="color: #22c55e; font-weight: bold">Online</span>
+              {% else %}
+              <span style="color: #ef4444; font-weight: bold">Offline</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        <h2>Dashboard Analytics</h2>
+      <div class="graph-container">
+        <div class="chart-box">
+          <h3>Task Automation</h3>
+          <canvas id="taskChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+          <h3>Leave Management</h3>
+          <canvas id="leaveChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+          <h3>Employee Reviews</h3>
+          <canvas id="reviewChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+          <h3>Employee Attendance</h3>
+          <canvas id="attendanceChart"></canvas>
+          <div class="employee-list">
+            <h4>Online Employees ({{ online_count }})</h4>
+            <ul id="onlineList">
+              {% for emp in online_names_emails %}
+              <li>{{ emp }}</li>
+              {% endfor %}
+            </ul>
+            <h4>Offline Employees: {{ offline_count }}</h4>
+          </div>
+        </div>
+      </div>
     </div>
- <!-- Flash Message for Unauthorized Access -->
- {% with messages = get_flashed_messages(with_categories=true) %}
- {% if messages %}
-     <script>
-         window.onload = function() {
-             {% for category, message in messages %}
-                 alert("{{ message }}");
-             {% endfor %}
-         };
-     </script>
- {% endif %}
-{% endwith %}
+    <!-- Flash Message for Unauthorized Access -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <script>
+      window.onload = function() {
+          {% for category, message in messages %}
+              alert("{{ message }}");
+          {% endfor %}
+      };
+    </script>
+    {% endif %} {% endwith %}
 
     <script>
-        // JavaScript for toggling sidebar visibility
-        const burgerIcon = document.getElementById('burgerIcon');
-        const burgerIconClose = document.getElementById('burgerIconClose');
-        const sidebar = document.getElementById('sidebar');
+      // JavaScript for toggling sidebar visibility
+      const burgerIcon = document.getElementById("burgerIcon");
+      const burgerIconClose = document.getElementById("burgerIconClose");
+      const sidebar = document.getElementById("sidebar");
 
-        burgerIcon.addEventListener('click', () => {
-            sidebar.classList.add('show');
-            burgerIcon.style.display = 'none';
-            burgerIconClose.style.display = 'block';
-        });
+      burgerIcon.addEventListener("click", () => {
+        sidebar.classList.add("show");
+        burgerIcon.style.display = "none";
+        burgerIconClose.style.display = "block";
+      });
 
-        burgerIconClose.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-            burgerIcon.style.display = 'block';
-            burgerIconClose.style.display = 'none';
-        });
+      burgerIconClose.addEventListener("click", () => {
+        sidebar.classList.remove("show");
+        burgerIcon.style.display = "block";
+        burgerIconClose.style.display = "none";
+      });
+      document.addEventListener("DOMContentLoaded", function () {
+        var taskChartCanvas = document.getElementById("taskChart").getContext("2d");
+        var leaveChartCanvas = document.getElementById("leaveChart").getContext("2d");
+        var reviewChartCanvas = document.getElementById("reviewChart").getContext("2d");
+        var attendanceChartCanvas = document.getElementById("attendanceChart").getContext("2d");
+
+        // Gradient Colors
+        var gradient1 = taskChartCanvas.createLinearGradient(0, 0, 0, 400);
+        gradient1.addColorStop(0, "#FF6384");
+        gradient1.addColorStop(1, "#FF9F40");
+
+        var gradient2 = leaveChartCanvas.createLinearGradient(0, 0, 0, 400);
+        gradient2.addColorStop(0, "#4BC0C0");
+        gradient2.addColorStop(1, "#36A2EB");
+
+        var gradient3 = reviewChartCanvas.createLinearGradient(0, 0, 0, 400);
+        gradient3.addColorStop(0, "#FFCE56");
+        gradient3.addColorStop(1, "#9966FF");
+
+        var gradient4 = attendanceChartCanvas.createLinearGradient(0, 0, 0, 400);
+        gradient4.addColorStop(0, "#00c6ff");
+        gradient4.addColorStop(1, "#0072ff");
+
+        // Data Objects for Charts
+        var taskData = {
+          labels: ["Pending", "In Progress", "Completed"],
+          datasets: [{
+            label: "Tasks Status",
+            data: [{{ task_status_counts['Pending'] }}, {{ task_status_counts['In Progress'] }}, {{ task_status_counts['Completed'] }}],
+            backgroundColor: [gradient1, "#FFCE56", "#36A2EB"],
+            borderWidth: 1,
+          }]
+        };
+
+        var leaveData = {
+          labels: ["Pending", "Approved", "Rejected"],
+          datasets: [{
+            label: "Leave Requests",
+            data: [{{ leave_status_counts['Pending'] }}, {{ leave_status_counts['Approved'] }}, {{ leave_status_counts['Rejected'] }}],
+            backgroundColor: [gradient2, "#4BC0C0", "#9966FF"],
+            borderWidth: 1,
+          }]
+        };
+
+        var reviewData = {
+          labels: ["Pending", "Resolved", "Rejected"],
+          datasets: [{
+            label: "Employee Reviews",
+            data: [{{ review_status_counts['Pending'] }}, {{ review_status_counts['Resolved'] }}, {{ review_status_counts['Rejected'] }}],
+            backgroundColor: [gradient3, "#36A2EB", "#FFCE56"],
+            borderWidth: 1,
+          }]
+        };
+
+        var attendanceData = {
+          labels: ["Online Employees: {{ online_count }}", "Offline Employees: {{ offline_count }}"],
+          datasets: [{
+            label: "Employee Attendance",
+            data: [{{ online_count }}, {{ offline_count }}],
+            backgroundColor: [gradient4, "#FF6384"],
+            borderWidth: 1,
+          }]
+        };
+
+        // Chart Options with Animations & Hover Effects
+        var chartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, labels: { color: "black", font: { size: 14 } } },
+            tooltip: { enabled: true, backgroundColor: "#333", bodyColor: "white", titleColor: "white" },
+          },
+          animation: {
+            duration: 2000,
+            easing: "easeInOutBounce",
+          }
+        };
+
+        // Create Charts
+        new Chart(taskChartCanvas, { type: "bar", data: taskData, options: chartOptions });
+        new Chart(leaveChartCanvas, { type: "doughnut", data: leaveData, options: chartOptions });
+        new Chart(reviewChartCanvas, { type: "pie", data: reviewData, options: chartOptions });
+        new Chart(attendanceChartCanvas, { type: "doughnut", data: attendanceData, options: chartOptions });
+      });
     </script>
-</body>
+  </body>
 </html>
