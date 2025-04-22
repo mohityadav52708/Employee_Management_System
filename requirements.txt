@@ -11,3 +11,6 @@ pymongo
 bcrypt
 flask-cors
 cloudinary
+pandas
+Werkzeug
+dnspython
