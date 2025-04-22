@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Voice Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            padding: 50px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        #status, #detected-password {
+            font-size: 18px;
+            margin-top: 20px;
+            min-height: 27px;
+        }
+
+        .visualizer-container {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 3px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 10px 0;
+        }
+
+        .bar {
+            width: 8px;
+            height: 10px;
+            background: #4CAF50;
+            transition: height 0.1s ease;
+        }
+
+        .confirmation {
+            margin-top: 20px;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Voice Authentication</h1>
+
+        <!-- Password Setup Section -->
+        <div id="setup-section">
+            <button class="btn" id="set-voice">Record Voice Password</button>
+            <p id="setup-status"></p>
+            <p id="detected-password"></p>
+            <div class="confirmation" id="confirm-setup">
+                <p>Is this correct?</p>
+                <button class="btn" id="confirm-yes">Yes</button>
+                <button class="btn" id="confirm-no">No</button>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" style="display: none;">
+            <button class="btn" id="login">Authenticate with Voice</button>
+            <p id="login-status"></p>
+            <p id="detected-login-password"></p>
+            <div class="confirmation" id="confirm-login">
+                <p>Is this correct?</p>
+                <button class="btn" id="auth-yes">Yes</button>
+                <button class="btn" id="auth-no">No</button>
+            </div>
+        </div>
+
+        <div class="visualizer-container" id="visualizer"></div>
+    </div>
+
+    <script>
+        const setVoiceBtn = document.getElementById("set-voice");
+        const loginBtn = document.getElementById("login");
+        const setupStatus = document.getElementById("setup-status");
+        const loginStatus = document.getElementById("login-status");
+        const detectedPassword = document.getElementById("detected-password");
+        const detectedLoginPassword = document.getElementById("detected-login-password");
+        const confirmSetup = document.getElementById("confirm-setup");
+        const confirmLogin = document.getElementById("confirm-login");
+        const confirmYes = document.getElementById("confirm-yes");
+        const confirmNo = document.getElementById("confirm-no");
+        const authYes = document.getElementById("auth-yes");
+        const authNo = document.getElementById("auth-no");
+        const visualizer = document.getElementById("visualizer");
+
+        let recordedPassword = "";
+        let recordedFrequency = 0;
+
+        for (let i = 0; i < 32; i++) {
+            let bar = document.createElement("div");
+            bar.classList.add("bar");
+            visualizer.appendChild(bar);
+        }
+        const bars = document.querySelectorAll(".bar");
+
+        function recordAudio(callback) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const frequencyData = new Uint8Array(bufferLength);
+
+                function animate() {
+                    analyser.getByteFrequencyData(frequencyData);
+                    bars.forEach((bar, index) => {
+                        let barHeight = frequencyData[index] / 2;
+                        bar.style.height = `${barHeight}px`;
+                        bar.style.backgroundColor = `rgb(${barHeight + 100}, 255, ${255 - barHeight})`;
+                    });
+                    requestAnimationFrame(animate);
+                }
+                animate();
+
+                const mediaRecorder = new MediaRecorder(stream);
+                let audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    analyser.getByteFrequencyData(frequencyData);
+                    const avgFrequency = frequencyData.reduce((sum, val) => sum + val, 0) / bufferLength;
+
+                    let spokenText = prompt("Type what you just said:");
+                    if (!spokenText) {
+                        setupStatus.textContent = "Recording cancelled.";
+                        return;
+                    }
+
+                    callback(spokenText, avgFrequency);
+                };
+
+                mediaRecorder.start();
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 3000);
+            });
+        }
+
+        setVoiceBtn.addEventListener("click", () => {
+            setupStatus.textContent = "Recording voice password...";
+            recordAudio((spokenText, avgFrequency) => {
+                detectedPassword.textContent = `Detected Password: "${spokenText}"`;
+                confirmSetup.style.display = "block";
+                recordedPassword = spokenText;
+                recordedFrequency = avgFrequency;
+            });
+        });
+
+        confirmYes.addEventListener("click", () => {
+            localStorage.setItem("voicePassword", recordedPassword);
+            localStorage.setItem("voiceFrequency", recordedFrequency);
+            setupStatus.textContent = "Voice password saved!";
+            confirmSetup.style.display = "none";
+            document.getElementById("setup-section").style.display = "none";
+            document.getElementById("login-section").style.display = "block";
+        });
+
+        confirmNo.addEventListener("click", () => {
+            setupStatus.textContent = "Please re-record your password.";
+            confirmSetup.style.display = "none";
+        });
+
+        loginBtn.addEventListener("click", () => {
+            loginStatus.textContent = "Authenticating...";
+            recordAudio((spokenText, avgFrequency) => {
+                detectedLoginPassword.textContent = `Detected Password: "${spokenText}"`;
+                confirmLogin.style.display = "block";
+            });
+        });
+
+        authYes.addEventListener("click", () => {
+            const savedPassword = localStorage.getItem("voicePassword");
+            const savedFrequency = parseFloat(localStorage.getItem("voiceFrequency"));
+            const frequencyMatch = Math.abs(savedFrequency - recordedFrequency) < 5;
+
+            if (savedPassword === recordedPassword && frequencyMatch) {
+                window.location.href = "protected.html";
+            } else {
+                loginStatus.textContent = "Access Denied!";
+            }
+        });
+
+        authNo.addEventListener("click", () => {
+            loginStatus.textContent = "Try again.";
+            confirmLogin.style.display = "none";
+        });
+    </script>
+</body>
+</html>

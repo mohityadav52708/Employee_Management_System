@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <!-- <link rel="stylesheet" href="./static/admin_home.css" /> -->
+    <link rel="stylesheet" href="../static/futuristic.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+  </head>
+  <body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle"></div>
+
+    <!-- Header Section with Glassmorphism -->
+    <div class="image glass">
+      <h1 id="mobile" class="neon-text">
+        Welcome Back, <br />
+        Admin {{username}}
+      </h1>
+      <h1 id="dekstop" class="neon-text">Welcome Back, Admin {{username}}</h1>
+      <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+      <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+      <a href="/logout" class="neon-button">Logout</a>
+    </div>
+
+    <!-- Sidebar with Glassmorphism -->
+    <div class="sidebar glass" id="sidebar">
+      <h2 class="neon-text">Admin Dashboard</h2>
+      <a href="{{url_for('admin_home')}}">Dashboard</a>
+      <a href="{{url_for('employee_details')}}">Employee Management</a>
+      <a href="{{url_for('tasks')}}">Task Tracking</a>
+      <a href="{{ url_for('admin_leave_requests') }}">Leave Requests</a>
+      <a href="#">Performance Reviews</a>
+      <a href="#">Reports</a>
+      <a href="{{url_for('admin_complaints')}}">Employee Reviews</a>
+    </div>
+
+    <div class="content">
+      <div class="header"></div>
+
+      <!-- Dashboard Cards with 3D Effects -->
+      <div class="container parallax-container">
+        <div class="futuristic-card parallax" data-speed="0.05">
+          <h3>Employee Overview</h3>
+          <p>View and manage all employees' details.</p>
+          <a href="{{url_for('employee_details')}}" class="btn-3d">View Employees</a>
+        </div>
+
+        <div class="futuristic-card parallax" data-speed="0.07">
+          <h3>Task Assignments</h3>
+          <p>Assign and monitor tasks for employees.</p>
+          <a href="{{url_for('tasks')}}" class="btn-3d">Manage Tasks</a>
+        </div>
+
+        <div class="futuristic-card parallax" data-speed="0.09">
+          <h3>Leave Approvals</h3>
+          <p>Review and approve pending leave requests.</p>
+          <a href="{{url_for('admin_leave_requests')}}" class="btn-3d">Manage Leaves</a>
+        </div>
+
+        <div class="futuristic-card parallax" data-speed="0.05">
+          <h3>Performance Tracking</h3>
+          <p>Analyze performance reviews and provide feedback.</p>
+          <a href="#" class="btn-3d">Track Performance</a>
+        </div>
+
+        <div class="futuristic-card parallax" data-speed="0.07">
+          <h3>Generate Reports</h3>
+          <p>Create detailed reports for employee statistics.</p>
+          <a href="#" class="btn-3d">Generate Reports</a>
+        </div>
+
+        <div class="futuristic-card parallax" data-speed="0.09">
+          <h3>System Settings</h3>
+          <p>Configure system settings and preferences.</p>
+          <a href="#" class="btn-3d">Go to Settings</a>
+        </div>
+      </div>
+
+      <!-- Online Employees Section -->
+      <div class="section glass">
+        <h2 class="neon-text">Online Employees</h2>
+        <div class="online-employees">
+          {% for emp in online_employees %}
+          <div class="online-employee neon-border">
+            {{ emp.email }} - Online since {{ emp.login_time }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Attendance Table Section -->
+      <div class="section glass">
+        <h2 class="neon-text">Attendance Records</h2>
+        <table id="table" class="attendance-table">
+          <tr id="heading_of_table">
+            <th>Email</th>
+            <th>Date</th>
+            <th>Login Time</th>
+            <th>Logout Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+          </tr>
+          {% for record in attendance_records %}
+          <tr>
+            <td data-label="Email">{{ record.email }}</td>
+            <td data-label="Date">{{ record.date }}</td>
+            <td data-label="Login Time">{{ record.login_time }}</td>
+            <td data-label="Logout Time">
+              {{ record.logout_time if record.logout_time else 'Still Online' }}
+            </td>
+            <td data-label="Duration">{{ record.duration if record.duration else 'N/A' }}</td>
+            <td data-label="Status">
+              {% if record.status == "Online" %}
+              <span style="color: #22c55e; font-weight: bold">Online</span>
+              {% else %}
+              <span style="color: #ef4444; font-weight: bold">Offline</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <!-- Dashboard Analytics with Enhanced Charts -->
+      <div class="section glass">
+        <h2 class="neon-text">Dashboard Analytics</h2>
+        <div class="graph-container">
+          <div class="chart-box">
+            <h3>Task Automation</h3>
+            <canvas id="taskChart"></canvas>
+          </div>
+
+          <div class="chart-box">
+            <h3>Leave Management</h3>
+            <canvas id="leaveChart"></canvas>
+          </div>
+
+          <div class="chart-box">
+            <h3>Employee Reviews</h3>
+            <canvas id="reviewChart"></canvas>
+          </div>
+
+          <div class="chart-box">
+            <h3>Employee Attendance</h3>
+            <canvas id="attendanceChart"></canvas>
+            <div class="employee-list">
+              <h4>Online Employees (<span id="onlineCount">{{ online_count }}</span>)</h4>
+              <ul id="onlineList">
+                {% for emp in online_names_emails %}
+                <li>{{ emp }}</li>
+                {% endfor %}
+              </ul>
+              <h4>Offline Employees: <span id="offlineCount">{{ offline_count }}</span></h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flash Message for Unauthorized Access -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <!-- <script>
+      window.onload = function() {
+          {% for category, message in messages %}
+              showNotification('System Message', "{{ message }}", "{{ category }}");
+          {% endfor %}
+      };
+    </script> -->
+    {% endif %} {% endwith %}
+
+    <!-- Include JavaScript Files -->
+    <script src="../static/futuristic.js"></script>
+    <script src="../static/admin-enhanced.js"></script>
+  </body>
+</html>
+

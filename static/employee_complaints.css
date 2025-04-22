@@ -2,7 +2,7 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f8f9fa;
+    background: #8ec4ff;
 }
 
 /* Header styles */
@@ -12,7 +12,7 @@ h1 {
 }
  h2 {
     text-align: center;
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
 }
 /* Form styles */
 form {
@@ -62,9 +62,10 @@ table {
 }
 
 table th, table td {
-    border: 1px solid #dee2e6;
+    border: 1px solid #000000;
     padding: 10px;
     text-align: left;
+    color: black;
 }
 
 table th {
@@ -80,7 +81,7 @@ table tr:nth-child(even) {
 /* No complaints message */
 .no-complaints {
     text-align: center;
-    color: #ffffff;
+    color: #000000;
     margin-top: 20px;
     animation: fadeIn 1s ease-in-out;
 }

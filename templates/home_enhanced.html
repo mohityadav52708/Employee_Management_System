@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../static/home.css" />
+    <link rel="stylesheet" href="../static/futuristic.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle"></div>
+
+    <!-- Header Section with Glassmorphism -->
+    <div class="image glass">
+      <h1 id="dekstop" class="neon-text">Welcome Back, {{username}}</h1>
+      <div class="burger-icon open" id="burgerIcon">&#9776;</div>
+      <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+      
+      <div class="profile-section">
+        <img src="{{ user.profile_image if user.profile_image else url_for('static', filename='default-profile.png') }}" 
+            alt="Profile Image" class="profile-img">
+      </div>
+      <a href="/logout" class="neon-button">Logout</a>
+    </div>
+
+    <!-- Sidebar with Glassmorphism -->
+    <div class="sidebar glass" id="sidebar">
+      <h2 class="neon-text">Employee Dashboard</h2>
+      <a href="{{url_for('home')}}">Dashboard</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
+      <a href="{{url_for('tasks')}}">Task Management</a>
+      <a href="{{ url_for('request_leave') }}">Leave Management</a>
+      <a href="#">Learning & Development</a>
+      <a href="#">Attendance</a>
+      <a href="{{url_for('complaints')}}">Reviews</a>
+    </div>
+
+    <div class="content">
+      <h1 id="mobile" class="neon-text">Welcome Back, {{username}}</h1>
+      
+      <!-- Employee Stats Dashboard -->
+      <div class="section glass">
+        <h2 class="neon-text">Your Performance Overview</h2>
+        <div class="stats-container">
+          <div class="stat-card">
+            <h3>Tasks Completed</h3>
+            <div class="stat-value" id="tasksCompleted">24</div>
+            {% comment %} <canvas id="tasksChart" height="100"></canvas> {% endcomment %}
+          </div>
+          <div class="stat-card">
+            <h3>Attendance Rate</h3>
+            <div class="stat-value" id="attendanceRate">98%</div>
+            {% comment %} <canvas id="attendanceRateChart" height="100"></canvas> {% endcomment %}
+          </div>
+          <div class="stat-card">
+            <h3>Performance Score</h3>
+            <div class="stat-value" id="performanceScore">4.7/5</div>
+            {% comment %} <canvas id="performanceChart" height="100"></canvas> {% endcomment %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Dashboard Cards with 3D Effects -->
+      <div class="container parallax-container">
+        <!-- Task Automation -->
+        <div class="futuristic-card parallax" data-speed="0.05">
+          <h3>Task Automation</h3>
+          <p>
+            Automated task allocation based on project needs and employee
+            skills.
+          </p>
+          <a href="{{url_for('tasks')}}" class="btn-3d">Manage Tasks</a>
+        </div>
+
+        <!-- Personalized Learning -->
+        <div class="futuristic-card parallax" data-speed="0.07">
+          <h3>Learning & Development</h3>
+          <p>Personalized training suggestions for skill enhancement.</p>
+          <a href="#" class="btn-3d">Start Learning</a>
+        </div>
+
+        <!-- Reviews Box -->
+        <div class="futuristic-card parallax" data-speed="0.09">
+          <h3>Employee Reviews</h3>
+          <p>
+            Provide feedback and view performance reviews from managers and
+            peers.
+          </p>
+          <a href="{{url_for('complaints')}}" class="btn-3d">View Reviews</a>
+        </div>
+      </div>
+
+      <!-- More Cards Section -->
+      <div class="container parallax-container">
+        <!-- Sentiment Analysis -->
+        <div class="futuristic-card parallax" data-speed="0.05">
+          <h3>Employee Sentiment</h3>
+          <p>Analyze feedback and reviews to gauge employee satisfaction.</p>
+          <a href="#" class="btn-3d">Analyze Sentiment</a>
+        </div>
+
+        <!-- Workload Management -->
+        <div class="futuristic-card parallax" data-speed="0.07">
+          <h3>Workload Management</h3>
+          <p>Monitor and balance workloads across your team effectively.</p>
+          <a href="#" class="btn-3d">Manage Workloads</a>
+        </div>
+
+        <!-- Face Recognition Attendance -->
+        <div class="futuristic-card parallax" data-speed="0.09">
+          <h3>Attendance Tracking</h3>
+          <p>Mark attendance using face recognition technology.</p>
+          <a href="#" class="btn-3d">Mark Attendance</a>
+        </div>
+      </div>
+
+      <!-- Dynamic Leave Management -->
+      <div class="container">
+        <div class="futuristic-card">
+          <h3>Leave Management</h3>
+          <p>Request, approve, and track leave applications dynamically.</p>
+          <a href="{{url_for('request_leave')}}" class="btn-3d">Manage Leaves</a>
+        </div>
+      </div>
+
+      <!-- Footer Section -->
+      <div class="footer glass">
+        <p>&copy; 2025 Employee Management System. All Rights Reserved.</p>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            window.onload = function() {
+                {% for category, message in messages %}
+                    showNotification('System Message', "{{ message }}", "{{ category }}");
+                {% endfor %}
+            };
+        </script>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Include JavaScript Files -->
+    <script src="../static/futuristic.js"></script>
+    <script src="../static/employee-enhanced.js"></script>
+    <script src="../static/chatbot.js"></script>
+    
+    <script>
+      // Initialize employee dashboard charts
+      document.addEventListener('DOMContentLoaded', function() {
+        // Tasks Completed Chart
+        const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+        new Chart(tasksCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Tasks Completed',
+              data: [4, 7, 5, 8, 6, 9],
+              borderColor: '#00f3ff',
+              backgroundColor: 'rgba(0, 243, 255, 0.1)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                display: false
+              },
+              x: {
+                display: false
+              }
+            }
+          }
+        });
+        
+        // Attendance Rate Chart
+        const attendanceCtx = document.getElementById('attendanceRateChart').getContext('2d');
+        new Chart(attendanceCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+              data: [98, 2],
+              backgroundColor: [
+                'rgba(0, 243, 255, 0.7)',
+                'rgba(255, 99, 132, 0.7)'
+              ],
+              borderColor: [
+                'rgba(0, 243, 255, 1)',
+                'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+        
+        // Performance Score Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+            datasets: [{
+              label: 'Performance Score',
+              data: [4.2, 4.5, 4.6, 4.7],
+              backgroundColor: [
+                'rgba(157, 0, 255, 0.7)',
+                'rgba(157, 0, 255, 0.7)',
+                'rgba(157, 0, 255, 0.7)',
+                'rgba(157, 0, 255, 0.7)'
+              ],
+              borderColor: [
+                'rgba(157, 0, 255, 1)',
+                'rgba(157, 0, 255, 1)',
+                'rgba(157, 0, 255, 1)',
+                'rgba(157, 0, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                display: false,
+                max: 5
+              },
+              x: {
+                display: false
+              }
+            }
+          }
+        });
+        
+        // Animate stat values
+        gsap.from('#tasksCompleted', {
+          textContent: 0,
+          duration: 2,
+          ease: 'power1.out',
+          snap: { textContent: 1 }
+        });
+        
+        gsap.from('#attendanceRate', {
+          textContent: 0,
+          duration: 2,
+          ease: 'power1.out',
+          snap: { textContent: 1 },
+          suffix: '%'
+        });
+        
+        gsap.from('#performanceScore', {
+          textContent: 0,
+          duration: 2,
+          ease: 'power1.out',
+          snap: { textContent: 0.1 },
+          suffix: '/5'
+        });
+      });
+    </script>
+  </body>
+</html>
+

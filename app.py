@@ -11,9 +11,12 @@ from email.mime.multipart import MIMEMultipart
 import ssl
 import cloudinary
 import cloudinary.uploader
+from flask import send_file
+import pandas as pd
 from bson.objectid import ObjectId
 import datetime
 from datetime import datetime
+from io import BytesIO
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
@@ -45,6 +48,7 @@ def allowed_file(filename):
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'user' not in session:
+       
         flash("Please log in to update your profile.", "danger")
         return redirect(url_for('login'))
 
@@ -71,10 +75,12 @@ def profile():
 
         # ✅ Update User in MongoDB
         users_collection.update_one({"email": session['user']}, {"$set": update_data})
+        user = users_collection.find_one({"email": session['user']})
+        username = user['username']
         flash("Profile updated successfully!", "success")
         return redirect(url_for('profile'))
 
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user,username=user.get('username', 'User')) 
 
 
 @app.route('/admin/employees')
@@ -335,43 +341,60 @@ def logout():
     return redirect(url_for('login'))
 @app.route('/admin_home')
 def admin_home():
-    if 'user' in session and session.get('role') == 'admin' :
-        online_employees = list(attendance_collection.find({"status": "Online"}))
-        attendance_records = list(attendance_collection.find())
-        offline_count = attendance_collection.count_documents({"status": "Offline"})
+    if 'user' in session and session.get('role') == 'admin':
+        today = datetime.today().strftime('%Y-%m-%d')
 
-        user = users_collection.find_one({"email": session['user']})
-        username = user['username']
+        # Currently online employees
+        online_employees = list(attendance_collection.find({"status": "Online", "date": today}))
+        for emp in online_employees:
+            emp_user = users_collection.find_one({"email": emp["email"]})
+            emp["name"] = emp_user.get("username", "N/A")
+            emp["duration"] = str(datetime.now() - emp.get("login_time"))
+
+        # Attendance records for online employees only
+        attendance_records = [
+            {
+                "email": emp["email"],
+                "date": emp["date"],
+                "login_time": emp.get("login_time"),
+                "logout_time": None,
+                "duration": emp["duration"],
+                "status": "Online"
+            } for emp in online_employees
+        ]
+
+        offline_count = attendance_collection.count_documents({"status": "Offline", "date": today})
+        username = users_collection.find_one({"email": session["user"]})["username"]
+
+        # Online names & emails
         online_names_emails = [
-            f"{emp['email']} ({users_collection.find_one({'email': emp['email']})['username']})"
+            f"{emp['email']} ({emp['name']})"
             for emp in online_employees
         ]
-        online_count = len(online_names_emails)
+        online_count = len(online_employees)
+
+        # ✅ Notification counts
         task_status_counts = {
             "Pending": db.tasks.count_documents({"status": "Pending"}),
             "In Progress": db.tasks.count_documents({"status": "In Progress"}),
             "Completed": db.tasks.count_documents({"status": "Completed"})
         }
 
-        # Fetch Leave Request Data
         leave_status_counts = {
             "Pending": db.leave_requests.count_documents({"status": "Pending"}),
             "Approved": db.leave_requests.count_documents({"status": "Approved"}),
             "Rejected": db.leave_requests.count_documents({"status": "Rejected"})
         }
 
-        # Fetch Employee Reviews Data
         review_status_counts = {
             "Pending": db.complaints.count_documents({"status": "Pending"}),
             "Resolved": db.complaints.count_documents({"status": "Resolved"}),
             "Rejected": db.complaints.count_documents({"status": "Rejected"})
         }
 
-        # Fetch Attendance Data
-        today = datetime.today().strftime('%Y-%m-%d')
         attendance_counts = {
-            "Online": db.attendance_collection.count_documents({"date": today, "status": "Online"}),
-            "Offline": db.attendance_collection.count_documents({"date": today, "status": "Offline"})
+            "Online": online_count,
+            "Offline": offline_count
         }
 
         return render_template(
@@ -381,6 +404,7 @@ def admin_home():
             offline_count=offline_count,
             attendance_records=attendance_records,
             username=username,
+            online_names_emails=online_names_emails,
             task_status_counts=task_status_counts,
             leave_status_counts=leave_status_counts,
             review_status_counts=review_status_counts,
@@ -390,16 +414,75 @@ def admin_home():
         flash('Access denied. Only admin can access this page.', 'danger')
         return redirect(url_for('login'))
 
-
 @app.route('/home')
 def home():
     if 'user' in session and session.get('role') == 'employee':
-        user = users_collection.find_one({"email": session['user']})
+        user_email = session['user']
+        user = users_collection.find_one({"email": user_email})
+        username = user.get('username', 'User')
+        # Ensure default values
+        task_status_counts = {"Pending": 0}
+        leave_status_counts = {"Pending": 0}
+        review_status_counts = {"Pending": 0}
+        online_employees = []
+        attendance_records = []
+
         if user:
-            return render_template('home.html', user=user, username=user.get('username', 'User'))
+            username = user.get('username', 'User')
+            today = datetime.today().strftime('%Y-%m-%d')
+
+            # Online session info
+            online_record = attendance_collection.find_one({
+                "email": user_email,
+                "status": "Online",
+                "date": today
+            })
+
+            if online_record:
+                online_employees.append({
+                    "email": user_email,
+                    "login_time": online_record.get("login_time"),
+                    "date": online_record.get("date"),
+                    "duration": str(datetime.now() - online_record.get("login_time")),
+                    "status": "Online"
+                })
+                attendance_records = online_employees
+
+            # Notifications
+            task_status_counts = {
+                "Pending": db.tasks.count_documents({"status": "Pending"}),
+                "In Progress": db.tasks.count_documents({"status": "In Progress"}),
+                "Completed": db.tasks.count_documents({"status": "Completed"})
+            }
+
+            leave_status_counts = {
+                "Pending": db.leave_requests.count_documents({"status": "Pending"}),
+                "Approved": db.leave_requests.count_documents({"status": "Approved"}),
+                "Rejected": db.leave_requests.count_documents({"status": "Rejected"})
+            }   
+
+            review_status_counts = {
+                "Pending": db.complaints.count_documents({"status": "Pending"}),
+                "Resolved": db.complaints.count_documents({"status": "Resolved"}),
+                "Rejected": db.complaints.count_documents({"status": "Rejected"})
+            }
+
+
+            return render_template(
+                'home.html',
+                username=username,
+                user=user,
+                online_employees=online_employees,
+                attendance_records=attendance_records,
+                task_status_counts=task_status_counts,
+                leave_status_counts=leave_status_counts,
+                review_status_counts=review_status_counts
+            )
+
         else:
             flash("User not found.", "danger")
             return redirect(url_for('login'))
+
     else:
         flash('Access denied. Please log in as an employee.', 'danger')
         return redirect(url_for('login'))
@@ -554,6 +637,67 @@ def admin_attendance():
     else:
         flash('Access denied.', 'danger')
         return redirect(url_for('login'))
+# @app.route('/export_online_employees')
+# def export_online_employees():
+#     records = attendance_collection.find({})  # Fetch all historical records
+#     data = []
 
+#     for record in records:
+#         user = users_collection.find_one({"email": record["email"]})
+#         login = record.get("login_time")
+#         logout = record.get("logout_time")
+#         if login and logout:
+#             duration = str(logout - login)
+#         elif login:
+#             duration = str(datetime.now() - login)
+#         else:
+#             duration = "N/A"
+
+#         data.append({
+#             "Name": user.get("username", "N/A"),
+#             "Email": record["email"],
+#             "Date": record.get("date", "N/A"),
+#             "Login Time": login.strftime('%Y-%m-%d %H:%M:%S') if login else "",
+#             "Logout Time": logout.strftime('%Y-%m-%d %H:%M:%S') if logout else "Still Online",
+#             "Duration": duration,
+#             "Status": record.get("status", "N/A")
+#         })
+
+#     df = pd.DataFrame(data)
+#     output = BytesIO()
+#     df.to_excel(output, index=False)
+#     output.seek(0)
+#     return send_file(output, as_attachment=True, download_name="employee_attendance_history.xlsx")
+@app.route('/export_online_employees')
+def export_online_employees():
+    records = attendance_collection.find({})  # Fetch all historical records
+    data = []
+
+    for record in records:
+        user = users_collection.find_one({"email": record["email"]})
+        login = record.get("login_time")
+        logout = record.get("logout_time")
+        if login and logout:
+            duration = str(logout - login)
+        elif login:
+            duration = str(datetime.now() - login)
+        else:
+            duration = "N/A"
+
+        data.append({
+            "Name": user.get("username", "N/A"),
+            "Email": record["email"],
+            "Date": record.get("date", "N/A"),
+            "Login Time": login.strftime('%Y-%m-%d %H:%M:%S') if login else "",
+            "Logout Time": logout.strftime('%Y-%m-%d %H:%M:%S') if logout else "Still Online",
+            "Duration": duration,
+            "Status": record.get("status", "N/A")
+        })
+
+    df = pd.DataFrame(data)
+    output = BytesIO()
+    df.to_excel(output, index=False)
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="employee_attendance_history.xlsx")
 if __name__ == '__main__':
     app.run(debug=True)

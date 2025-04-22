@@ -10,7 +10,13 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -25,6 +31,33 @@
       <h1 id="dekstop">Welcome Back , Admin {{username}}</h1>
       <div class="burger-icon open" id="burgerIcon">&#9776;</div>
       <div class="burger-icon close" id="burgerIconClose">&#10006;</div>
+      <div class="notification-bar">
+        <div
+          class="notification-icon"
+          onclick="toggleDropdown('notificationDropdown')"
+        >
+          <i class="fa-solid fa-bell"></i>
+          {% set total_alerts = task_status_counts['Pending'] +
+          leave_status_counts['Pending'] + review_status_counts['Pending'] %} {%
+          if total_alerts > 0 %}
+          <span class="badge">{{ total_alerts }}</span>
+          {% endif %}
+        </div>
+        <div id="notificationDropdown" class="notification-dropdown">
+          <h4>Notifications</h4>
+          <ul>
+            {% if task_status_counts['Pending'] > 0 %}
+            <li>📝 {{ task_status_counts['Pending'] }} Pending Task(s)</li>
+            {% endif %} {% if leave_status_counts['Pending'] > 0 %}
+            <li>🛫 {{ leave_status_counts['Pending'] }} Leave Request(s)</li>
+            {% endif %} {% if review_status_counts['Pending'] > 0 %}
+            <li>📣 {{ review_status_counts['Pending'] }} Employee Review(s)</li>
+            {% endif %} {% if total_alerts == 0 %}
+            <li>No pending notifications ✅</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
       <a href="/logout" class="logout-btn">Logout</a>
     </div>
     <div class="sidebar" id="sidebar">
@@ -84,19 +117,34 @@
         </div>
       </div>
       <div class="section">
-        <h2>Online Employees</h2>
+        <h2>Currently Online Employees</h2>
         <div class="online-employees">
-          {% for emp in online_employees %}
+          {% if online_employees %} {% for emp in online_employees %}
           <div class="online-employee">
-            {{ emp.email }} - Online since {{ emp.login_time }}
+            <strong>{{ emp.name }}</strong> ({{ emp.email }})<br />
+            Login: {{ emp.login_time.strftime('%H:%M:%S') }}<br />
+            Duration: {{ emp.duration }}
           </div>
-          {% endfor %}
+          {% endfor %} {% else %}
+          <p style="color: gray">🚫 No employees are currently online.</p>
+          {% endif %}
         </div>
+        <form action="{{ url_for('export_online_employees') }}" method="get">
+          <button
+            type="submit"
+            class="export-history-btn"
+            style="margin-top: 20px"
+          >
+            ⬇️ Export Full History
+          </button>
+        </form>
       </div>
 
       <!-- Attendance Table Section -->
       <div class="section">
         <h2>Attendance Records</h2>
+
+        {% if attendance_records %}
         <table id="table" class="attendance-table">
           <tr id="heading_of_table">
             <th>Email</th>
@@ -110,11 +158,14 @@
           <tr>
             <td>{{ record.email }}</td>
             <td>{{ record.date }}</td>
-            <td>{{ record.login_time }}</td>
             <td>
-              {{ record.logout_time if record.logout_time else 'Still Online' }}
+              {{ record.login_time.strftime('%H:%M:%S') if record.login_time }}
             </td>
-            <td>{{ record.duration if record.duration else 'N/A' }}</td>
+            <td>
+              {{ record.logout_time.strftime('%H:%M:%S') if record.logout_time
+              else 'Still Online' }}
+            </td>
+            <td>{{ record.duration }}</td>
             <td>
               {% if record.status == "Online" %}
               <span style="color: #22c55e; font-weight: bold">Online</span>
@@ -125,7 +176,12 @@
           </tr>
           {% endfor %}
         </table>
-        <h2>Dashboard Analytics</h2>
+        {% else %}
+        <p style="color: gray">📄 No attendance records to display.</p>
+        {% endif %}
+      </div>
+
+      <h2>Dashboard Analytics</h2>
       <div class="graph-container">
         <div class="chart-box">
           <h3>Task Automation</h3>
@@ -270,6 +326,13 @@
         new Chart(reviewChartCanvas, { type: "pie", data: reviewData, options: chartOptions });
         new Chart(attendanceChartCanvas, { type: "doughnut", data: attendanceData, options: chartOptions });
       });
+      setInterval(() => {
+        location.reload();
+      }, 200000);
+      function toggleDropdown(id) {
+        const dropdown = document.getElementById(id);
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      }
     </script>
   </body>
 </html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Voice Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            padding: 50px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #status {
+            font-size: 18px;
+            margin-top: 20px;
+            min-height: 27px;
+        }
+
+        .visualizer-container {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 3px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 10px 0;
+        }
+
+        .bar {
+            width: 8px;
+            height: 10px;
+            background: #4CAF50;
+            transition: height 0.1s ease;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .recording-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background-color: red;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 1s infinite;
+            vertical-align: middle;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .recording .recording-indicator {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Voice Authentication</h1>
+        
+        <div id="setup-section">
+            <div class="input-group">
+                <label for="setup-password">Create Password:</label>
+                <input type="password" id="setup-password" aria-describedby="password-requirements">
+                <p id="password-requirements" class="sr-only">Password must be at least 6 characters long.</p>
+            </div>
+            
+            <button id="set-password" aria-describedby="setup-status">
+                Record Voice Password
+                <span class="recording-indicator" aria-hidden="true"></span>
+            </button>
+            <p id="setup-status" class="status"></p>
+        </div>
+        
+        <div id="login-section" style="display: none;">
+            <div class="input-group">
+                <label for="login-password">Enter Password:</label>
+                <input type="password" id="login-password">
+            </div>
+            
+            <button id="login" aria-describedby="login-status">
+                Authenticate with Voice
+                <span class="recording-indicator" aria-hidden="true"></span>
+            </button>
+            <p id="login-status" class="status"></p>
+        </div>
+        
+        <div class="visualizer-container" id="visualizer" aria-label="Voice frequency visualizer" role="img"></div>
+        
+        <div id="controls" style="margin-top: 20px;">
+            <button id="switch-to-login" style="display: none;">Switch to Login</button>
+            <button id="switch-to-setup" style="display: none;">Switch to Setup</button>
+        </div>
+    </div>
+
+    <script>document.addEventListener("DOMContentLoaded", () => {
+        // DOM Elements
+        const setupSection = document.getElementById("setup-section")
+        const loginSection = document.getElementById("login-section")
+        const setupPassword = document.getElementById("setup-password")
+        const loginPassword = document.getElementById("login-password")
+        const setPasswordBtn = document.getElementById("set-password")
+        const loginBtn = document.getElementById("login")
+        const setupStatus = document.getElementById("setup-status")
+        const loginStatus = document.getElementById("login-status")
+        const visualizer = document.getElementById("visualizer")
+        const switchToLoginBtn = document.getElementById("switch-to-login")
+        const switchToSetupBtn = document.getElementById("switch-to-setup")
+      
+        // Create Frequency Bars for visualizer
+        for (let i = 0; i < 32; i++) {
+          const bar = document.createElement("div")
+          bar.classList.add("bar")
+          visualizer.appendChild(bar)
+        }
+        const bars = document.querySelectorAll(".bar")
+      
+        // Check if voice password is already set
+        if (localStorage.getItem("voiceFrequencyProfile") && localStorage.getItem("passwordHash")) {
+          setupSection.style.display = "none"
+          loginSection.style.display = "block"
+          switchToSetupBtn.style.display = "inline-block"
+        } else {
+          switchToLoginBtn.style.display = "inline-block"
+        }
+      
+        // Event Listeners
+        setPasswordBtn.addEventListener("click", handleSetPassword)
+        loginBtn.addEventListener("click", handleLogin)
+        switchToLoginBtn.addEventListener("click", () => {
+          setupSection.style.display = "none"
+          loginSection.style.display = "block"
+          switchToLoginBtn.style.display = "none"
+          switchToSetupBtn.style.display = "inline-block"
+        })
+        switchToSetupBtn.addEventListener("click", () => {
+          loginSection.style.display = "none"
+          setupSection.style.display = "block"
+          switchToSetupBtn.style.display = "none"
+          switchToLoginBtn.style.display = "inline-block"
+        })
+      
+        // Set Password Handler
+        function handleSetPassword() {
+          const password = setupPassword.value
+      
+          if (password.length < 6) {
+            setupStatus.textContent = "Password must be at least 6 characters long"
+            return
+          }
+      
+          setPasswordBtn.disabled = true
+          setPasswordBtn.classList.add("recording")
+          setupStatus.textContent = "Recording voice pattern... Please speak your name clearly"
+      
+          recordAudio((audioBlob, frequencyProfile) => {
+            // Hash the password (simple hash for demo purposes)
+            const passwordHash = simpleHash(password)
+      
+            // Store both password hash and voice frequency profile
+            localStorage.setItem("passwordHash", passwordHash)
+            localStorage.setItem("voiceFrequencyProfile", JSON.stringify(frequencyProfile))
+      
+            setupStatus.textContent = "Voice password set successfully!"
+            setPasswordBtn.disabled = false
+            setPasswordBtn.classList.remove("recording")
+      
+            // Clear password field
+            setupPassword.value = ""
+      
+            // Show login option
+            switchToLoginBtn.style.display = "inline-block"
+          })
+        }
+      
+        // Login Handler
+        function handleLogin() {
+          const password = loginPassword.value
+          const storedPasswordHash = localStorage.getItem("passwordHash")
+          const storedFrequencyProfile = JSON.parse(localStorage.getItem("voiceFrequencyProfile"))
+      
+          if (!storedPasswordHash || !storedFrequencyProfile) {
+            loginStatus.textContent = "No voice password set! Please set one first."
+            return
+          }
+      
+          // Check text password first
+          const passwordHash = simpleHash(password)
+          if (passwordHash !== storedPasswordHash) {
+            loginStatus.textContent = "Incorrect password!"
+            return
+          }
+      
+          loginBtn.disabled = true
+          loginBtn.classList.add("recording")
+          loginStatus.textContent = "Authenticating voice... Please speak your name clearly"
+      
+          recordAudio((audioBlob, frequencyProfile) => {
+            const matchScore = compareFrequencyProfiles(frequencyProfile, storedFrequencyProfile)
+      
+            loginBtn.disabled = false
+            loginBtn.classList.remove("recording")
+      
+            if (matchScore > 0.7) {
+              // 70% match threshold
+              loginStatus.textContent = "Access Granted! ✅"
+              loginStatus.style.color = "#4CAF50"
+      
+              // Redirect to protected page after delay
+              setTimeout(() => {
+                // In a real app, you would redirect to a protected page
+                // window.location.href = "protected.html";
+      
+                // For demo, we'll just show a success message
+                document.body.innerHTML = `
+                              <div class="container" style="text-align: center;">
+                                  <h1>Welcome to Protected Area</h1>
+                                  <p>You have successfully authenticated!</p>
+                                  <button onclick="window.location.reload()">Logout</button>
+                              </div>
+                          `
+              }, 1500)
+            } else {
+              loginStatus.textContent = "Voice does not match! Access Denied ❌"
+              loginStatus.style.color = "#ff3333"
+              loginPassword.value = ""
+            }
+          })
+        }
+      
+        // Audio Recording and Analysis
+        function recordAudio(callback) {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Your browser does not support audio recording")
+            return
+          }
+      
+          navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then((stream) => {
+              const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+              const analyser = audioContext.createAnalyser()
+              analyser.fftSize = 256
+              const bufferLength = analyser.frequencyBinCount
+              const dataArray = new Uint8Array(bufferLength)
+      
+              const source = audioContext.createMediaStreamSource(stream)
+              source.connect(analyser)
+      
+              const mediaRecorder = new MediaRecorder(stream)
+              const audioChunks = []
+              const frequencySnapshots = []
+      
+              mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data)
+              }
+      
+              // Real-time Visualization
+              function visualize() {
+                if (!mediaRecorder.state === "recording") return
+      
+                analyser.getByteFrequencyData(dataArray)
+      
+                // Take frequency snapshots for profile
+                if (mediaRecorder.state === "recording") {
+                  frequencySnapshots.push([...dataArray])
+                }
+      
+                // Update visualizer
+                const barCount = bars.length
+                const step = Math.floor(bufferLength / barCount)
+      
+                for (let i = 0; i < barCount; i++) {
+                  const dataIndex = i * step
+                  const value = dataArray[dataIndex] || 0
+      
+                  bars[i].style.height = value + "px"
+                  // Color gradient from green to yellow to red
+                  const hue = 120 - value * 0.5 // 120 is green, 60 is yellow, 0 is red
+                  bars[i].style.backgroundColor = `hsl(${hue}, 100%, 50%)`
+                }
+      
+                requestAnimationFrame(visualize)
+              }
+      
+              visualize()
+      
+              mediaRecorder.onstop = () => {
+                // Create frequency profile from snapshots
+                const frequencyProfile = createFrequencyProfile(frequencySnapshots)
+      
+                // Stop all tracks to release microphone
+                stream.getTracks().forEach((track) => track.stop())
+      
+                // Create audio blob
+                const audioBlob = new Blob(audioChunks, { type: "audio/wav" })
+      
+                callback(audioBlob, frequencyProfile)
+              }
+      
+              // Start recording
+              mediaRecorder.start()
+      
+              // Record for 3 seconds
+              setTimeout(() => {
+                if (mediaRecorder.state === "recording") {
+                  mediaRecorder.stop()
+                }
+              }, 3000)
+            })
+            .catch((error) => {
+              console.error("Error accessing microphone:", error)
+              alert("Error accessing microphone: " + error.message)
+              setPasswordBtn.disabled = false
+              loginBtn.disabled = false
+              setPasswordBtn.classList.remove("recording")
+              loginBtn.classList.remove("recording")
+            })
+        }
+      
+        // Create a frequency profile from multiple snapshots
+        function createFrequencyProfile(snapshots) {
+          if (snapshots.length === 0) return []
+      
+          const snapshotCount = snapshots.length
+          const frequencyBinCount = snapshots[0].length
+          const profile = new Array(frequencyBinCount).fill(0)
+      
+          // Calculate average frequency values
+          for (let i = 0; i < frequencyBinCount; i++) {
+            let sum = 0
+            for (let j = 0; j < snapshotCount; j++) {
+              sum += snapshots[j][i]
+            }
+            profile[i] = sum / snapshotCount
+          }
+      
+          return profile
+        }
+      
+        // Compare two frequency profiles and return a match score (0-1)
+        function compareFrequencyProfiles(profile1, profile2) {
+          if (!profile1 || !profile2 || profile1.length !== profile2.length) return 0
+      
+          const binCount = profile1.length
+          let totalDifference = 0
+          let maxPossibleDifference = 0
+      
+          for (let i = 0; i < binCount; i++) {
+            // Focus on the most significant frequency bins (middle range)
+            const weight = getFrequencyBinWeight(i, binCount)
+      
+            const difference = Math.abs(profile1[i] - profile2[i])
+            totalDifference += difference * weight
+            maxPossibleDifference += 255 * weight // 255 is max value for a frequency bin
+          }
+      
+          // Return inverted normalized difference (1 = perfect match, 0 = complete mismatch)
+          return 1 - totalDifference / maxPossibleDifference
+        }
+      
+        // Weight function that emphasizes mid-range frequencies (human voice range)
+        function getFrequencyBinWeight(binIndex, totalBins) {
+          // Give more weight to mid-range frequencies (human voice range)
+          const normalizedIndex = binIndex / totalBins
+      
+          // Bell curve centered around 0.3 (typical human voice frequency range)
+          return Math.exp(-Math.pow((normalizedIndex - 0.3) * 5, 2))
+        }
+      
+        // Simple hash function for password (for demo purposes only)
+        // In a real application, use a proper cryptographic hash function
+        function simpleHash(str) {
+          let hash = 0
+          for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i)
+            hash = (hash << 5) - hash + char
+            hash = hash & hash // Convert to 32bit integer
+          }
+          return hash.toString(16)
+        }
+      
+        // Reset visualizer when not recording
+        function resetVisualizer() {
+          bars.forEach((bar) => {
+            bar.style.height = "0px"
+            bar.style.backgroundColor = "#4CAF50"
+          })
+        }
+      
+        // Reset visualizer periodically when not recording
+        setInterval(() => {
+          if (setPasswordBtn.classList.contains("recording") || loginBtn.classList.contains("recording")) {
+            return
+          }
+          resetVisualizer()
+        }, 500)
+      })
+      
+      </script>
+</body>
+</html>
+
